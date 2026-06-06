@@ -42,15 +42,22 @@ Before writing code that uses any library (Next.js, Drizzle, Biome, Vitest, Reac
 - No inline `style={{...}}` props.
 - No Tailwind utility classes — none is installed.
 
-## Database (Drizzle + SQLite)
+## Database (Drizzle + SQLite + sqlite-vec)
 
-- Schema definitions live in `db/schema.ts`.
-- Query/repository functions live in `db/` (e.g., `db/questions.ts`).
-- Use Drizzle's query builder or the `sql` tagged template. No raw string-concatenated SQL.
-- **After any schema change**, always run both commands in sequence:
-  1. `pnpm db:generate` — generates the migration file from the updated schema
-  2. `pnpm db:migrate` — applies the migration to the local SQLite database
-- Never modify the SQLite `.db` file manually and never skip these steps after a schema edit.
+See `DATABASE.md` for the full architecture. Key points:
+
+- One file, `db/local.db`, holds two responsibilities: the **knowledge base** (RAG source — read-only at runtime) and **generated content** (runtime read/write). Keep them in separate tables.
+- Query/repository functions live in `db/` (e.g., `db/questions.ts`). Use Drizzle's query builder or the `sql` tagged template — no raw string-concatenated SQL.
+- Embeddings come from a **local model** — no external embedding API.
+- **Knowledge-base tables (`kb_*`, incl. their `vec0` table) are owned by the seed** — it drops and recreates them each run. **Runtime tables are owned by Drizzle migrations** — their data must survive.
+- Never modify the `.db` file manually. To reset, truncate runtime tables — do not delete `db/local.db` (that discards knowledge-base vectors and forces a full re-embed).
+- **Never run `pnpm db:migrate` or `pnpm db:seed` without explicit user approval.** Both mutate `db/local.db`. Show the command you intend to run and wait for the user to confirm.
+
+**When changing the database**
+
+1. Classify the table first: *reference material the agent reads* → knowledge base; *data created by app usage* → runtime.
+2. **Knowledge-base table** → edit its DDL in `db/seed.ts` (it drops and recreates KB tables). Do **not** add it to `schema.ts`, do **not** create a migration, and never put corpus content in migration history. After the change, run `pnpm db:seed`.
+3. **Runtime table** → define it in `db/schema.ts`, then run `pnpm db:generate` → `pnpm db:migrate` in sequence. For a runtime `vec0` table, hand-write a custom `sql` migration (virtual tables can't live in `schema.ts`).
 
 ## File and folder conventions
 

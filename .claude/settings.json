@@ -1,6 +1,10 @@
 {
 	"permissions": {
-		"ask": ["Bash(git commit*)"]
+		"ask": [
+			"Bash(git commit*)",
+			"Bash(pnpm db:migrate*)",
+			"Bash(pnpm db:seed*)"
+		]
 	},
 	"hooks": {
 		"Stop": [

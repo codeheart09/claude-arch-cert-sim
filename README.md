@@ -29,25 +29,40 @@ If you don't have pnpm installed:
 npm install -g pnpm
 ```
 
-Then install dependencies and start the dev server:
+Then install dependencies, set up the database, and start the dev server — in this order:
 
 ```bash
-pnpm install
-pnpm dev
+pnpm install        # install dependencies
+pnpm db:migrate     # create db/local.db and apply migrations
+pnpm db:seed        # build the knowledge base (downloads the local embedding model on first run)
+pnpm dev            # start the dev server
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+The database must be migrated and seeded **before** `pnpm dev` — the app reads from it on startup. See [DATABASE.md](./DATABASE.md) for the full database architecture.
+
 ## Database
 
-The database is a local SQLite file at `db/local.db` (git-ignored). To set it up or reset it after pulling changes:
+A single local SQLite file at `db/local.db` (git-ignored) holds both the knowledge base (RAG source) and runtime data. See **[DATABASE.md](./DATABASE.md)** for the full architecture and the rules on what owns which tables.
+
+Day-to-day commands:
 
 ```bash
-pnpm db:generate   # generate migration files from the schema
-pnpm db:migrate    # apply migrations to db/local.db
+pnpm db:migrate    # apply migrations (run after pulling schema changes)
+pnpm db:seed       # rebuild the knowledge base from source (run after pulling corpus changes)
 ```
 
-Run both commands in sequence whenever the schema in `db/schema.ts` changes. Never edit the `.db` file directly.
+When you change the schema in `db/schema.ts`, generate the migration first, then apply it:
+
+```bash
+pnpm db:generate   # generate a migration from the updated schema
+pnpm db:migrate    # apply it to db/local.db
+```
+
+Never edit the `.db` file directly.
+
+Vector search uses the `sqlite-vec` extension. It is verified on macOS (x64); Linux and Windows are not yet validated and may need a matched extension build — see [DATABASE.md](./DATABASE.md#platform-compatibility) if vector queries fail with "no such module: vec0".
 
 ## Project Structure
 

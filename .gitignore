@@ -45,3 +45,7 @@ next-env.d.ts
 db/local.db
 db/local.db-shm
 db/local.db-wal
+
+# local embedding model weights (re-downloaded on first seed)
+db/.model-cache
+local_cache

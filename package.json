@@ -11,14 +11,23 @@
 		"test:run": "vitest run",
 		"check": "biome check --write .",
 		"db:generate": "drizzle-kit generate",
-		"db:migrate": "drizzle-kit migrate"
+		"db:migrate": "drizzle-kit migrate",
+		"db:seed": "tsx db/seed.ts"
+	},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"better-sqlite3",
+			"onnxruntime-node"
+		]
 	},
 	"dependencies": {
 		"better-sqlite3": "^12.10.0",
 		"drizzle-orm": "^0.45.2",
+		"fastembed": "^2.1.0",
 		"next": "16.2.7",
 		"react": "19.2.4",
-		"react-dom": "19.2.4"
+		"react-dom": "19.2.4",
+		"sqlite-vec": "^0.1.9"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.16",
@@ -31,6 +40,7 @@
 		"@vitejs/plugin-react": "^6.0.2",
 		"drizzle-kit": "^0.31.10",
 		"jsdom": "^29.1.1",
+		"tsx": "^4.22.4",
 		"typescript": "^5",
 		"vite-tsconfig-paths": "^6.1.1",
 		"vitest": "^4.1.8"
