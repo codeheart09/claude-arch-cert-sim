@@ -11,8 +11,7 @@
 		"test:run": "vitest run",
 		"check": "biome check --write .",
 		"db:generate": "drizzle-kit generate",
-		"db:migrate": "drizzle-kit migrate",
-		"db:studio": "drizzle-kit studio"
+		"db:migrate": "drizzle-kit migrate"
 	},
 	"dependencies": {
 		"better-sqlite3": "^12.10.0",

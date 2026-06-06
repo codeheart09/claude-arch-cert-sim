@@ -46,8 +46,11 @@ Before writing code that uses any library (Next.js, Drizzle, Biome, Vitest, Reac
 
 - Schema definitions live in `db/schema.ts`.
 - Query/repository functions live in `db/` (e.g., `db/questions.ts`).
-- Run migrations with `drizzle-kit` — never modify the SQLite `.db` file manually.
 - Use Drizzle's query builder or the `sql` tagged template. No raw string-concatenated SQL.
+- **After any schema change**, always run both commands in sequence:
+  1. `pnpm db:generate` — generates the migration file from the updated schema
+  2. `pnpm db:migrate` — applies the migration to the local SQLite database
+- Never modify the SQLite `.db` file manually and never skip these steps after a schema edit.
 
 ## File and folder conventions
 

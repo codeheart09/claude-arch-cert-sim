@@ -38,6 +38,17 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+## Database
+
+The database is a local SQLite file at `db/local.db` (git-ignored). To set it up or reset it after pulling changes:
+
+```bash
+pnpm db:generate   # generate migration files from the schema
+pnpm db:migrate    # apply migrations to db/local.db
+```
+
+Run both commands in sequence whenever the schema in `db/schema.ts` changes. Never edit the `.db` file directly.
+
 ## Project Structure
 
 ```
