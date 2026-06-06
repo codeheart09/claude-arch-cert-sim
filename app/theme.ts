@@ -1,14 +1,23 @@
-import { createTheme } from "@mantine/core";
+import { createTheme, type MantineColorsTuple } from "@mantine/core";
 
-/**
- * Centralized Mantine theme — the single source of truth for global design
- * decisions (brand color, default radius, fonts, custom palettes).
- *
- * See DESIGN.md for the styling approach. Change global look-and-feel here,
- * not on individual component instances.
- */
+// Warm ivory from the app icon (#F7F2EA at shade 1). Used as the page body
+// background in light mode; white surfaces float above it. See DESIGN.md.
+const parchment: MantineColorsTuple = [
+	"#fdfcf8",
+	"#f7f2ea",
+	"#efe6d6",
+	"#e4d6bd",
+	"#dbc8a6",
+	"#d2bb92",
+	"#cbb184",
+	"#b39769",
+	"#9e8459",
+	"#8a7149",
+];
+
 export const theme = createTheme({
 	fontFamily: "var(--font-geist-sans), sans-serif",
 	fontFamilyMonospace: "var(--font-geist-mono), monospace",
 	defaultRadius: "md",
+	colors: { parchment },
 });

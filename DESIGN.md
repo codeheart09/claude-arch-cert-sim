@@ -213,6 +213,26 @@ must work in both — never ship a view that only works in one.
 
 ---
 
+## Brand surface — parchment
+
+The app icon's warm ivory (`#F7F2EA`) is the **page body background** in light mode
+(set via `cssVariablesResolver` → `--mantine-color-body`). White surfaces (`--surface-highlight`)
+float above it — cards, panels, menus, dropdowns. Dark mode uses Mantine's default dark body.
+
+Use the scheme-aware tokens from `app/globals.css`, not raw palette values:
+
+- `var(--surface-highlight)` — white in light / `dark-6` in dark.
+- `var(--surface-highlight-border)` — `parchment-3` in light / `dark-4` in dark.
+
+```css
+.card {
+	background: var(--surface-highlight);
+	border: 1px solid var(--surface-highlight-border);
+}
+```
+
+---
+
 ## Component inventory
 
 Custom, reusable components live in `components/` and should be listed here as they're
@@ -221,5 +241,6 @@ created, so we reuse rather than duplicate:
 | Component | Location | Purpose |
 | --------- | -------- | ------- |
 | `ColorSchemeToggle` | `components/color-scheme-toggle/` | Always-visible light/dark toggle, fixed top-right on every route. |
-| `LoadingIcon` | `components/loading-icon/` | Animated graduation-spark mark (pure SVG/CSS). Accepts `size`. |
+| `LoadingIcon` | `components/loading-icon/` | Animated graduation-cap "A" mark (pure SVG/CSS, favicon-derived). Accepts `size`. |
 | `FullScreenLoader` | `components/full-screen-loader/` | Full-viewport loading screen using `LoadingIcon`. Wired as `app/loading.tsx`. |
+| `AppLoader` | `components/app-loader/` | Client wrapper that holds `FullScreenLoader` ~1.5s on initial load, then fades out. Mounted in the root layout. |

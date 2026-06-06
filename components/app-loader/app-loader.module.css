@@ -1,0 +1,14 @@
+.fade {
+	transition: opacity 450ms ease;
+}
+
+.hidden {
+	opacity: 0;
+	pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.fade {
+		transition: none;
+	}
+}

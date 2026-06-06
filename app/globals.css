@@ -24,8 +24,8 @@ body {
 	min-height: 100%;
 	display: flex;
 	flex-direction: column;
-	color: var(--foreground);
-	background: var(--background);
+	color: var(--mantine-color-text);
+	background: var(--mantine-color-body);
 	font-family: Arial, Helvetica, sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
@@ -46,4 +46,15 @@ a {
 	html {
 		color-scheme: dark;
 	}
+}
+
+/* Surface tokens — white cards/panels over the parchment body (light); warm-neutral in dark. */
+[data-mantine-color-scheme="light"] {
+	--surface-highlight: var(--mantine-color-white);
+	--surface-highlight-border: var(--mantine-color-parchment-3);
+}
+
+[data-mantine-color-scheme="dark"] {
+	--surface-highlight: var(--mantine-color-dark-6);
+	--surface-highlight-border: var(--mantine-color-dark-4);
 }

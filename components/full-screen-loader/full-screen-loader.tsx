@@ -8,7 +8,7 @@ import classes from "./full-screen-loader.module.css";
 export function FullScreenLoader() {
 	return (
 		<div className={classes.overlay} role="status" aria-label="Loading">
-			<LoadingIcon size={250} />
+			<LoadingIcon size={200} />
 		</div>
 	);
 }
