@@ -10,29 +10,41 @@ import {
 	IconSettings,
 	IconStopwatch,
 } from "@tabler/icons-react";
+import Link from "next/link";
 import classes from "./top-navigation.module.css";
 
 interface NavigationItem {
 	label: string;
+	href: string;
 	Icon: Icon;
 }
 
 const items: NavigationItem[] = [
-	{ label: "Your Analytics", Icon: IconChartBar },
-	{ label: "Exam Simmulator", Icon: IconCertificate },
-	{ label: "Question Stopwatch", Icon: IconStopwatch },
-	{ label: "Random Questions", Icon: IconArrowsShuffle },
-	{ label: "AI Tutor", Icon: IconRobot },
-	{ label: "Configurations", Icon: IconSettings },
+	{ label: "Your Analytics", href: "/analytics", Icon: IconChartBar },
+	{ label: "Exam Simmulator", href: "/exam-simulator", Icon: IconCertificate },
+	{
+		label: "Question Stopwatch",
+		href: "/question-stopwatch",
+		Icon: IconStopwatch,
+	},
+	{
+		label: "Random Questions",
+		href: "/random-questions",
+		Icon: IconArrowsShuffle,
+	},
+	{ label: "AI Tutor", href: "/ai-tutor", Icon: IconRobot },
+	{ label: "Configurations", href: "/configurations", Icon: IconSettings },
 ];
 
 export function TopNavigation() {
 	return (
 		<nav aria-label="Primary" className={classes.nav}>
 			<Group gap="xs" wrap="nowrap">
-				{items.map(({ label, Icon }) => (
+				{items.map(({ label, href, Icon }) => (
 					<Tooltip key={label} label={label} withArrow>
 						<ActionIcon
+							component={Link}
+							href={href}
 							aria-label={label}
 							className={classes.item}
 							variant="default"

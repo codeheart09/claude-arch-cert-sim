@@ -1,7 +1,7 @@
 import "@mantine/core/styles.css";
 import "./globals.css";
 
-import { ColorSchemeScript, mantineHtmlProps } from "@mantine/core";
+import { mantineHtmlProps } from "@mantine/core";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { connection } from "next/server";
@@ -46,7 +46,6 @@ export default async function RootLayout({
 			{...mantineHtmlProps}
 		>
 			<body>
-				<ColorSchemeScript defaultColorScheme="auto" />
 				<Providers>
 					<header className={classes.topBar}>
 						<div className={classes.welcome}>{topBarMessage}</div>
