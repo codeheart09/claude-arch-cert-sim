@@ -6,6 +6,8 @@
 
 A local-only Next.js exam simulator for engineers preparing for the Claude Certified Architect certification. Users clone and run it locally. No hosted deployment, no authentication.
 
+It is an **agentic application** — agents interact with the user to generate unseen questions, evaluate performance, and drive other intelligent interactions. The RAG knowledge base (see `DATABASE.md`) is what grounds those agents.
+
 **Stack:** Next.js 16 (App Router) · TypeScript (strict) · CSS Modules · SQLite + Drizzle ORM · Biome · Vitest
 
 ---

@@ -1,5 +1,7 @@
 # Database Architecture
 
+This is an **agentic application** — agents generate unseen questions, evaluate the user's performance, and drive other intelligent interactions. This database is what grounds them: it supplies the reference material they retrieve from and the runtime store for what they produce.
+
 A single local SQLite file (`db/local.db`) serves **two responsibilities** that share one connection and one `sqlite-vec` extension load. They are kept separate by table grouping and by which script owns them — not by living in different files.
 
 ## The two responsibilities

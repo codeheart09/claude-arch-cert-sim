@@ -2,6 +2,8 @@
 
 A training application for engineers preparing for the **Claude Certified Architect** certification exam. It provides a realistic, interactive exam simulation experience to build confidence and deepen understanding of Claude's architecture, capabilities, and best practices.
 
+It is an **agentic application**: agents interact with you to generate fresh, unseen questions, evaluate your performance, and power other intelligent interactions throughout a session.
+
 ## Purpose
 
 The certification exam tests knowledge across a range of topics including Claude's model capabilities, API usage patterns, prompt engineering, tool use, safety considerations, and architectural best practices for production deployments. This simulator lets candidates:
