@@ -29,7 +29,11 @@ export function ColorSchemeToggle() {
 			radius="md"
 			aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
 		>
-			{isDark ? <IconSun stroke={1.5} /> : <IconMoon stroke={1.5} />}
+			{isDark ? (
+				<IconSun size={20} stroke={1.5} />
+			) : (
+				<IconMoon size={20} stroke={1.5} />
+			)}
 		</ActionIcon>
 	);
 }

@@ -3,25 +3,25 @@
 
     <!-- Anthropic-inspired geometric mark -->
     <g transform="translate(96 150)">
-        <path d="M160 20L270 292H218L194 230H126L102 292H50L160 20Z" fill="#191919"/>
+        <path d="M160 20L270 292H218L194 230H126L102 292H50L160 20Z" fill="#121212"/>
         <path d="M144 184H176L160 140L144 184Z" fill="#F7F2EA"/>
     </g>
 
     <!-- Graduation hat -->
     <g transform="translate(112 78)">
         <!-- Cap top -->
-        <path d="M144 0L288 54L144 108L0 54L144 0Z" fill="#191919"/>
+        <path d="M144 0L288 54L144 108L0 54L144 0Z" fill="#121212"/>
         <path d="M144 22L230 54L144 86L58 54L144 22Z" fill="#F7F2EA" opacity="0.14"/>
 
         <!-- Cap band -->
-        <path d="M76 74C102 95 186 95 212 74V112C186 135 102 135 76 112V74Z" fill="#191919"/>
+        <path d="M76 74C102 95 186 95 212 74V112C186 135 102 135 76 112V74Z" fill="#121212"/>
 
         <!-- Tassel -->
-        <path d="M288 54V142" stroke="#191919" stroke-width="14" stroke-linecap="round"/>
-        <circle cx="288" cy="152" r="18" fill="#191919"/>
-        <path d="M276 170H300L314 224H262L276 170Z" fill="#191919"/>
+        <path d="M288 54V142" stroke="#121212" stroke-width="14" stroke-linecap="round"/>
+        <circle cx="288" cy="152" r="18" fill="#121212"/>
+        <path d="M276 170H300L314 224H262L276 170Z" fill="#121212"/>
     </g>
 
     <!-- Subtle base shadow -->
-    <ellipse cx="256" cy="398" rx="116" ry="18" fill="#191919" opacity="0.08"/>
+    <ellipse cx="256" cy="398" rx="116" ry="18" fill="#121212" opacity="0.08"/>
 </svg>

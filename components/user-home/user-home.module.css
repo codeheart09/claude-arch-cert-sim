@@ -1,0 +1,15 @@
+.page {
+	min-height: 100dvh;
+	display: flex;
+	align-items: center;
+	padding-block: var(--mantine-spacing-md);
+	padding-inline: var(--mantine-spacing-xl);
+}
+
+@media (max-width: 48em) {
+	.page {
+		padding-block: var(--mantine-spacing-sm);
+		padding-inline: var(--mantine-spacing-md);
+		padding-top: calc(var(--mantine-spacing-xl) * 2);
+	}
+}

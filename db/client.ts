@@ -1,7 +1,9 @@
+import { createRequire } from "node:module";
 import Database from "better-sqlite3";
-import * as sqliteVec from "sqlite-vec";
 
 const DEFAULT_DB_PATH = process.env.DATABASE_FILE ?? "db/local.db";
+const require = createRequire(import.meta.url);
+const sqliteVec = require("sqlite-vec") as typeof import("sqlite-vec");
 
 /**
  * Opens the local SQLite database with the sqlite-vec extension loaded.

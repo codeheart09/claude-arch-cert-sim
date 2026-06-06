@@ -1,0 +1,41 @@
+.topBar {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 900;
+	height: calc(var(--mantine-spacing-xl) * 2.15);
+	display: grid;
+	align-items: center;
+	grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+	column-gap: var(--mantine-spacing-md);
+	box-sizing: border-box;
+	padding-block: var(--mantine-spacing-sm);
+	padding-inline: var(--mantine-spacing-xl);
+	padding-right: calc(var(--mantine-spacing-xl) * 3);
+	pointer-events: none;
+}
+
+.welcome {
+	color: var(--mantine-color-text);
+	font-size: var(--mantine-font-size-xl);
+	font-weight: 700;
+	line-height: var(--mantine-line-height-sm);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+@media (max-width: 48em) {
+	.topBar {
+		height: calc(var(--mantine-spacing-xl) * 2);
+		padding-block: var(--mantine-spacing-sm);
+		padding-inline: var(--mantine-spacing-md);
+		padding-right: calc(var(--mantine-spacing-xl) * 2.75);
+	}
+
+	.welcome {
+		max-width: calc(100vw - calc(var(--mantine-spacing-xl) * 5));
+		font-size: var(--mantine-font-size-lg);
+	}
+}

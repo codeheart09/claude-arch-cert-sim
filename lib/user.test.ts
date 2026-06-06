@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
+	createUser: vi.fn(),
 	getUser: vi.fn(),
 }));
 
 vi.mock("../db/users", () => ({
+	createUser: mocks.createUser,
 	getUser: mocks.getUser,
 }));
 
@@ -15,6 +17,7 @@ async function loadSubject() {
 describe("getUser", () => {
 	beforeEach(() => {
 		vi.resetModules();
+		mocks.createUser.mockReset();
 		mocks.getUser.mockReset();
 	});
 
@@ -41,5 +44,20 @@ describe("getUser", () => {
 
 		expect(mocks.getUser).toHaveBeenCalledTimes(1);
 		expect(result).toBeUndefined();
+	});
+
+	it("creates a user through the DB layer", async () => {
+		const { createUser } = await loadSubject();
+		const user = {
+			id: 1,
+			name: "Ada Lovelace",
+			createdAt: new Date("2026-06-06T12:00:00.000Z"),
+		};
+		mocks.createUser.mockReturnValue(user);
+
+		const result = createUser("Ada Lovelace");
+
+		expect(mocks.createUser).toHaveBeenCalledWith("Ada Lovelace");
+		expect(result).toBe(user);
 	});
 });

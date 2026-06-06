@@ -4,8 +4,12 @@ import "./globals.css";
 import { ColorSchemeScript, mantineHtmlProps } from "@mantine/core";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { connection } from "next/server";
 import { AppLoader } from "@/components/app-loader/app-loader";
 import { ColorSchemeToggle } from "@/components/color-scheme-toggle/color-scheme-toggle";
+import { TopNavigation } from "@/components/top-navigation/top-navigation";
+import { getUser } from "@/lib/user";
+import classes from "./layout.module.css";
 import { Providers } from "./providers";
 
 const geistSans = Geist({
@@ -24,11 +28,17 @@ export const metadata: Metadata = {
 		"Practice exam simulator for engineers preparing for the Claude Certified Architect certification.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	await connection();
+	const user = getUser();
+	const topBarMessage = user
+		? `Welcome back, ${user.name}`
+		: "Claude Certified Architect";
+
 	return (
 		<html
 			lang="en"
@@ -38,6 +48,11 @@ export default function RootLayout({
 			<body>
 				<ColorSchemeScript defaultColorScheme="auto" />
 				<Providers>
+					<header className={classes.topBar}>
+						<div className={classes.welcome}>{topBarMessage}</div>
+						<TopNavigation />
+						<div aria-hidden="true" />
+					</header>
 					<ColorSchemeToggle />
 					{children}
 					<AppLoader />

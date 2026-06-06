@@ -15,9 +15,26 @@ const parchment: MantineColorsTuple = [
 	"#8a7149",
 ];
 
+const umber: MantineColorsTuple = [
+	"#fbf4ec",
+	"#f2e4d3",
+	"#e2c5a8",
+	"#cfa176",
+	"#b98252",
+	"#9a673e",
+	"#7b5032",
+	"#634129",
+	"#513624",
+	"#3f2b1f",
+];
+
 export const theme = createTheme({
 	fontFamily: "var(--font-geist-sans), sans-serif",
 	fontFamilyMonospace: "var(--font-geist-mono), monospace",
 	defaultRadius: "md",
-	colors: { parchment },
+	black: "#121212",
+	colors: { parchment, umber },
+	primaryColor: "umber",
+	primaryShade: { light: 6, dark: 4 },
+	autoContrast: true,
 });

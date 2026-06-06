@@ -1,8 +1,8 @@
-.toggle {
-	position: fixed;
-	top: var(--mantine-spacing-md);
-	right: var(--mantine-spacing-md);
-	z-index: 1000;
+.nav {
+	pointer-events: auto;
+}
+
+.item {
 	transition:
 		transform 120ms ease,
 		background-color 120ms ease,
@@ -11,7 +11,7 @@
 		box-shadow 120ms ease;
 }
 
-.toggle:hover {
+.item:hover {
 	color: var(--mantine-primary-color-filled);
 	border-color: var(--mantine-primary-color-filled);
 	background: light-dark(

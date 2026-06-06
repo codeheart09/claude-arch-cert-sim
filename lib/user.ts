@@ -1,6 +1,10 @@
 import type { User } from "../db/schema";
-import { getUser as dbGetUser } from "../db/users";
+import { createUser as dbCreateUser, getUser as dbGetUser } from "../db/users";
 
 export function getUser(): User | undefined {
 	return dbGetUser();
+}
+
+export function createUser(name: string): User {
+	return dbCreateUser(name);
 }

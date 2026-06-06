@@ -1,0 +1,55 @@
+.page {
+	min-height: 100dvh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding-block: var(--mantine-spacing-md);
+	padding-inline: var(--mantine-spacing-xl);
+}
+
+.panel {
+	width: min(100%, 44rem);
+	padding: var(--mantine-spacing-lg);
+	border: 1px solid var(--surface-highlight-border);
+	background: var(--surface-highlight);
+	box-shadow: var(--mantine-shadow-sm);
+}
+
+.kicker {
+	display: flex;
+	align-items: center;
+	gap: var(--mantine-spacing-xs);
+	color: var(--mantine-primary-color-filled);
+	font-size: var(--mantine-font-size-sm);
+	font-weight: 700;
+}
+
+.title {
+	max-width: 40rem;
+}
+
+.copy {
+	max-width: 36rem;
+	color: var(--mantine-color-dimmed);
+	font-size: var(--mantine-font-size-lg);
+}
+
+.input {
+	background: light-dark(
+		var(--mantine-color-white),
+		var(--mantine-color-dark-7)
+	);
+}
+
+@media (max-width: 48em) {
+	.page {
+		align-items: stretch;
+		padding-block: var(--mantine-spacing-sm);
+		padding-inline: var(--mantine-spacing-md);
+		padding-top: calc(var(--mantine-spacing-xl) * 2);
+	}
+
+	.panel {
+		padding: var(--mantine-spacing-md);
+	}
+}
