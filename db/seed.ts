@@ -1,23 +1,23 @@
 /**
- * Knowledge-base seed.
+ * Seed script — knowledge base + pre-authored questions.
  *
- * Owns ONLY the knowledge-base tables (the RAG source). Re-runnable: it rebuilds
- * those tables from the committed corpus markdown and never touches runtime data
- * (generated questions, sessions, progress). See DATABASE.md.
+ * Two responsibilities:
+ *   1. Rebuild KB tables (kb_chunk, kb_chunk_vec) wholesale from corpus markdown.
+ *   2. Import authored questions from db/questions.json into the runtime questions
+ *      table (idempotent — skips already-present rows by content hash).
  *
  * Run with: pnpm db:seed
  *
- * The KB tables — including the vec0 table — are owned BY THIS SEED, which drops
- * and recreates them on every run. They are deliberately NOT defined in Drizzle:
- * Drizzle owns only runtime tables, whose data must survive migrations. There is
- * nothing here for a migration to preserve. See DATABASE.md.
- *
- * Adding a document is a content change, not a code change: drop a new `.md` into
- * db/corpus/ and re-run this seed. The whole folder is ingested below.
+ * KB tables are dropped and recreated on every run (owned by this seed).
+ * The questions table is owned by Drizzle migrations; questions_vec is created
+ * here with IF NOT EXISTS so it persists across re-runs. See DATABASE.md and
+ * db/QUESTIONS.md.
  */
+import { readFileSync } from "node:fs";
 import { type CorpusChunk, loadCorpus } from "../lib/corpus";
 import { EMBEDDING_DIM, embedPassages, embedQuery } from "../lib/embeddings";
 import { openDb } from "./client";
+import { importQuestion, type QuestionInput } from "./questions";
 
 const CORPUS_DIR = "db/corpus";
 
@@ -117,6 +117,40 @@ async function seed(): Promise<void> {
 
 	console.log("\nTop matches for sample query:");
 	console.dir(matches, { depth: null });
+
+	// ── Pre-authored questions ─────────────────────────────────────────────────
+
+	// Create the vec0 companion table if it doesn't exist yet. Drizzle can't
+	// express virtual tables, so this lives here rather than in a migration.
+	// IF NOT EXISTS makes it a no-op on subsequent runs — vectors are never lost.
+	db.exec(
+		`CREATE VIRTUAL TABLE IF NOT EXISTS questions_vec USING vec0(embedding float[${EMBEDDING_DIM}])`,
+	);
+
+	const QUESTIONS_FILE = "db/questions.json";
+	const rawQuestions = readFileSync(QUESTIONS_FILE, "utf8");
+	const questionInputs = JSON.parse(rawQuestions) as QuestionInput[];
+
+	if (questionInputs.length > 0) {
+		const questionVectors = await embedPassages(
+			questionInputs.map((q) => q.question),
+		);
+		let imported = 0;
+		let skipped = 0;
+		for (let i = 0; i < questionInputs.length; i++) {
+			const result = importQuestion(db, questionInputs[i], questionVectors[i]);
+			if (result.wasInserted) {
+				imported++;
+			} else {
+				skipped++;
+			}
+		}
+		console.log(
+			`\nImported ${imported} authored questions, skipped ${skipped} already-present.`,
+		);
+	} else {
+		console.log("\nNo authored questions in db/questions.json — skipping.");
+	}
 
 	db.close();
 }
