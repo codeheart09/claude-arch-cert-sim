@@ -1,4 +1,7 @@
 {
+	"permissions": {
+		"ask": ["Bash(git commit*)"]
+	},
 	"hooks": {
 		"Stop": [
 			{

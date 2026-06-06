@@ -75,6 +75,7 @@ Before writing code that uses any library (Next.js, Drizzle, Biome, Vitest, Reac
 
 - Follow [Conventional Commits](https://www.conventionalcommits.org/): `feat:`, `fix:`, `chore:`, `docs:`, `test:`, `refactor:`.
 - One logical change per commit.
+- **Never run `git commit` without explicit user approval.** Before committing, always show the proposed commit message and wait for the user to confirm or adjust it.
 
 ## Environment variables
 
