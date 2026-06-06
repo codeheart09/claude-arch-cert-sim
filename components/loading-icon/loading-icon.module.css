@@ -1,0 +1,95 @@
+.icon {
+	color: var(--mantine-color-text);
+}
+
+.solid {
+	fill: currentColor;
+}
+
+/* The board's center, two-toned via a translucent backdrop-colored overlay. */
+.capInner {
+	fill: var(--mantine-color-body);
+	opacity: 0.24;
+}
+
+/* Soft ground shadow. */
+.shadow {
+	fill: currentColor;
+	opacity: 0.08;
+}
+
+.cord {
+	stroke: currentColor;
+	stroke-width: 14;
+	stroke-linecap: round;
+}
+
+/* Gray glint that sweeps the A. */
+.shineStop {
+	stop-color: light-dark(
+		var(--mantine-color-gray-5),
+		var(--mantine-color-gray-2)
+	);
+}
+
+.shine {
+	animation: shine 2.8s ease-in-out infinite;
+}
+
+/* The cap bobs gently. */
+.cap {
+	transform-box: view-box;
+	transform-origin: 256px 132px;
+	animation: bob 2.6s ease-in-out infinite;
+}
+
+/* The tassel swings from where the cord meets the cap. */
+.tassel {
+	transform-box: view-box;
+	transform-origin: 400px 132px;
+	animation: swing 2.6s ease-in-out infinite;
+}
+
+/* Travels from below-left to upper-right, then rests off-mark. */
+@keyframes shine {
+	0% {
+		transform: translate(-260px, 170px);
+	}
+	55% {
+		transform: translate(260px, -170px);
+	}
+	100% {
+		transform: translate(260px, -170px);
+	}
+}
+
+@keyframes bob {
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-8px);
+	}
+}
+
+@keyframes swing {
+	0%,
+	100% {
+		transform: rotate(7deg);
+	}
+	50% {
+		transform: rotate(-7deg);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.shine,
+	.cap,
+	.tassel {
+		animation: none;
+	}
+	.shine {
+		opacity: 0;
+	}
+}

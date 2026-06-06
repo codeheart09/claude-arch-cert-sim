@@ -221,3 +221,5 @@ created, so we reuse rather than duplicate:
 | Component | Location | Purpose |
 | --------- | -------- | ------- |
 | `ColorSchemeToggle` | `components/color-scheme-toggle/` | Always-visible light/dark toggle, fixed top-right on every route. |
+| `LoadingIcon` | `components/loading-icon/` | Animated graduation-spark mark (pure SVG/CSS). Accepts `size`. |
+| `FullScreenLoader` | `components/full-screen-loader/` | Full-viewport loading screen using `LoadingIcon`. Wired as `app/loading.tsx`. |
