@@ -37,12 +37,28 @@ Before writing code that uses any library (Next.js, Drizzle, Biome, Vitest, Reac
 - Prefer `interface` for object shapes, `type` for unions, intersections, and primitives.
 - No default exports except for Next.js page and layout files (which require them).
 
-## Styling
+## Styling & UI
 
-- All component styles go in a co-located `ComponentName.module.css` file.
+**Read `DESIGN.md` before writing UI.** It defines the design approach and is the
+authoritative source for component/styling patterns. Summary of the non-negotiables:
+
+- **Mantine 9 is the component library.** Use a Mantine component before writing custom
+  markup. Follow the decision hierarchy in `DESIGN.md`: Mantine component → props/style
+  props → theme → CSS Module → custom component.
+- **Global design decisions live in `app/theme.ts`** (`createTheme`), not on instances.
+- **Fine-tuning uses CSS Modules.** Co-located `ComponentName.module.css`, applied via
+  `className` / `classNames`. Inside CSS, reference **Mantine CSS variables**
+  (`var(--mantine-spacing-md)`, `var(--mantine-color-blue-6)`, …) — never hardcoded
+  colors/sizes.
+- **No inline `style={{...}}` and no Mantine `styles={{...}}` prop** (it's inline style
+  and outranks CSS Modules). Use `classNames` + a CSS Module instead.
 - Global styles only in `app/globals.css`.
-- No inline `style={{...}}` props.
-- No Tailwind utility classes — none is installed.
+- **No Tailwind** and no second styling/component library — none is installed.
+- Mantine interactive components are `'use client'`; keep pages/layouts as Server
+  Components and push Mantine into client leaf components.
+- **Light and dark mode are both mandatory.** Every view must work in both; use semantic
+  Mantine color variables / `light-dark()`, never per-scheme hardcoding. An
+  always-visible color-scheme toggle lives in a corner of the screen on every route.
 
 ## Database (Drizzle + SQLite + sqlite-vec)
 

@@ -21,6 +21,9 @@
 		]
 	},
 	"dependencies": {
+		"@mantine/core": "^9.3.0",
+		"@mantine/hooks": "^9.3.0",
+		"@tabler/icons-react": "^3.44.0",
 		"better-sqlite3": "^12.10.0",
 		"drizzle-orm": "^0.45.2",
 		"fastembed": "^2.1.0",
@@ -40,6 +43,9 @@
 		"@vitejs/plugin-react": "^6.0.2",
 		"drizzle-kit": "^0.31.10",
 		"jsdom": "^29.1.1",
+		"postcss": "^8.5.15",
+		"postcss-preset-mantine": "^1.18.0",
+		"postcss-simple-vars": "^7.0.1",
 		"tsx": "^4.22.4",
 		"typescript": "^5",
 		"vite-tsconfig-paths": "^6.1.1",

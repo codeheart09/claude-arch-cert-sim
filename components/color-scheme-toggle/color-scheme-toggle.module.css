@@ -1,0 +1,6 @@
+.toggle {
+	position: fixed;
+	top: var(--mantine-spacing-md);
+	right: var(--mantine-spacing-md);
+	z-index: 1000;
+}
