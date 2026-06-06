@@ -34,10 +34,11 @@ npm install -g pnpm
 Then install dependencies, set up the database, and start the dev server — in this order:
 
 ```bash
-pnpm install        # install dependencies
-pnpm db:migrate     # create db/local.db and apply migrations
-pnpm db:seed        # build the knowledge base (downloads the local embedding model on first run)
-pnpm dev            # start the dev server
+pnpm install                  # install dependencies
+cp .env.example .env.local    # create local config (edit if needed)
+pnpm db:migrate               # create db/local.db and apply migrations
+pnpm db:seed                  # build the knowledge base (downloads the local embedding model on first run)
+pnpm dev                      # start the dev server
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.

@@ -66,6 +66,7 @@ See `DATABASE.md` for the full architecture. Key points:
 - File and folder names: `kebab-case` (e.g., `question-card.tsx`, `use-timer.ts`).
 - Component named exports are PascalCase.
 - Routing only in `app/`. Business logic in `lib/`. UI components in `components/`. DB access in `db/`.
+- **`app/` and `components/` must never import directly from `db/`.** All database access is proxied through `lib/` — one `lib/<domain>.ts` file per domain (e.g. `lib/user.ts` wraps `db/users.ts`). This keeps the app layer decoupled from the DB layer and gives `lib/` a place to add caching, transformation, or business rules later without touching DB code.
 - Test files are co-located with the source file they test: `question-card.test.tsx` next to `question-card.tsx`.
 
 ## Linting and formatting (Biome)
