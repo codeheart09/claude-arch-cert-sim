@@ -27,3 +27,15 @@ export function getDb(): Db {
 export function getClient(): Database.Database {
 	return getDb().$client;
 }
+
+/**
+ * Closes the singleton connection and clears the cache. Call this in long-lived
+ * scripts (e.g. CLI runners) before process.exit() so sqlite-vec's native mutex
+ * can tear down cleanly. Safe to call when no connection is open.
+ */
+export function closeDb(): void {
+	if (_db) {
+		_db.$client.close();
+		_db = undefined;
+	}
+}

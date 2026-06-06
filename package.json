@@ -12,7 +12,8 @@
 		"check": "biome check --write .",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
-		"db:seed": "tsx db/seed.ts"
+		"db:seed": "tsx db/seed.ts",
+		"questions:generate": "tsx scripts/generate-questions.ts"
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [
@@ -21,6 +22,7 @@
 		]
 	},
 	"dependencies": {
+		"@anthropic-ai/sdk": "^0.102.0",
 		"@mantine/core": "^9.3.0",
 		"@mantine/hooks": "^9.3.0",
 		"@tabler/icons-react": "^3.44.0",

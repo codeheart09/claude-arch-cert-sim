@@ -80,4 +80,31 @@ Re-running `pnpm db:seed` is safe — it only adds new questions and never remov
 
 ## AI-generated questions
 
-The `lib/questions.ts` facade (`importSingleQuestion`, `importQuestionsFromFile`) uses the same underlying functions and the same idempotency logic. AI-generated questions are stored with `source = 'generated'` (the default for `source = 'authored'` only applies when importing from this file).
+The `lib/questions.ts` facade (`importSingleQuestion`, `importQuestionsFromFile`) uses the same underlying functions and the same idempotency logic. AI-generated questions are stored with `source = 'generated'` (the default `source = 'authored'` only applies when importing from `db/questions.json`).
+
+## Generating questions with the agent
+
+`lib/question-generator.ts` is an agent that calls the Anthropic API to author new questions, grounded in the exam guide via RAG and forced into the schema above using tool use. Run it with:
+
+```sh
+pnpm questions:generate        # generate QUESTION_GEN_CONCURRENCY questions (default 5)
+pnpm questions:generate 8      # generate 8 in parallel
+```
+
+### Required environment (`.env.local`)
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `ANTHROPIC_API_KEY` | — (required) | API key for the generation agent |
+| `ANTHROPIC_MODEL` | `claude-sonnet-4-6` | Model the agent uses (overridable per call) |
+| `QUESTION_GEN_CONCURRENCY` | `5` | Default number of agents run in parallel |
+
+### How it works
+
+- **One question per agent session.** Each question is its own isolated API conversation, so contexts never bleed between agents.
+- **Distinct, valid combos.** `buildCombos` assigns each agent a different domain/scenario pair, constrained to the scenario's **primary domains** from the exam guide (`lib/exam-taxonomy.ts`), and cycles difficulty for balance.
+- **RAG grounding.** Each agent pulls the relevant task-statement extracts (`retrieveGrounding`, filtered by domain) and the scenario description, plus a few authored exemplars, into its prompt.
+- **Tool use.** The agent must call the `emit_question` tool (forced `tool_choice`), guaranteeing schema-shaped output. Output is validated; malformed results trigger a retry with feedback.
+- **Vector dedup.** Each candidate is embedded and compared (kNN over `questions_vec`) against the existing bank; a hit below `DUP_DISTANCE_THRESHOLD` triggers a retry asking for a materially different question.
+
+Generated rows are `source = 'generated'`. They live in the runtime `questions` table and **survive `pnpm db:seed`** — the seed only rebuilds knowledge-base tables and re-imports authored questions; it never deletes generated ones.
