@@ -121,3 +121,43 @@ export const answers = sqliteTable("answers", {
 
 export type Answer = typeof answers.$inferSelect;
 export type NewAnswer = typeof answers.$inferInsert;
+
+// ─── AI Tutor conversation tables ─────────────────────────────────────────────
+
+export const AI_CONVERSATION_ROLE_ENUM = ["user", "assistant"] as const;
+export type AiConversationRole = (typeof AI_CONVERSATION_ROLE_ENUM)[number];
+
+/** A single tutor chat session. Title is auto-set from the first user message. */
+export const aiConversations = sqliteTable("ai_conversations", {
+	id: integer("id").primaryKey({ autoIncrement: true }),
+	title: text("title").notNull().default("New conversation"),
+	createdAt: integer("created_at", { mode: "timestamp" })
+		.notNull()
+		.default(sql`(unixepoch())`),
+	updatedAt: integer("updated_at", { mode: "timestamp" })
+		.notNull()
+		.default(sql`(unixepoch())`),
+});
+
+export type AiConversation = typeof aiConversations.$inferSelect;
+export type NewAiConversation = typeof aiConversations.$inferInsert;
+
+/**
+ * One message in a tutor conversation. Only the final displayed text is stored —
+ * tool call details are internal to the agent loop and not persisted.
+ */
+export const aiConversationMessages = sqliteTable("ai_conversation_messages", {
+	id: integer("id").primaryKey({ autoIncrement: true }),
+	conversationId: integer("conversation_id")
+		.notNull()
+		.references(() => aiConversations.id, { onDelete: "cascade" }),
+	role: text("role", { enum: AI_CONVERSATION_ROLE_ENUM }).notNull(),
+	content: text("content").notNull(),
+	createdAt: integer("created_at", { mode: "timestamp" })
+		.notNull()
+		.default(sql`(unixepoch())`),
+});
+
+export type AiConversationMessage = typeof aiConversationMessages.$inferSelect;
+export type NewAiConversationMessage =
+	typeof aiConversationMessages.$inferInsert;

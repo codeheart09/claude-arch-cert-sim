@@ -1,10 +1,9 @@
-import { PlaceholderPage } from "@/components/placeholder-page/placeholder-page";
+import { connection } from "next/server";
+import { AiTutorChat } from "@/components/ai-tutor/ai-tutor-chat";
+import { listConversations } from "@/lib/conversations";
 
-export default function AiTutorPage() {
-	return (
-		<PlaceholderPage
-			title="AI Tutor"
-			message="A coaching agent for explanations, review plans, and follow-up practice will be available here."
-		/>
-	);
+export default async function AiTutorPage() {
+	await connection();
+	const conversations = listConversations();
+	return <AiTutorChat initialConversations={conversations} />;
 }

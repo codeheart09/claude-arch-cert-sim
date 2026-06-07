@@ -1,0 +1,312 @@
+/* ─── Page shell ─────────────────────────────────────────────────────────── */
+
+.page {
+	display: flex;
+	flex-direction: column;
+	height: 100dvh;
+	padding-top: calc(var(--mantine-spacing-xl) * 3.5);
+	padding-inline: var(--mantine-spacing-xl);
+	padding-bottom: var(--mantine-spacing-md);
+}
+
+/* ─── Layout ─────────────────────────────────────────────────────────────── */
+
+.layout {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-height: 0;
+	max-width: 48rem;
+	width: 100%;
+	margin-inline: auto;
+	gap: var(--mantine-spacing-sm);
+}
+
+/* ─── Toolbar ────────────────────────────────────────────────────────────── */
+
+.toolbar {
+	display: flex;
+	align-items: center;
+	gap: var(--mantine-spacing-xs);
+	flex-shrink: 0;
+}
+
+.selector {
+	flex: 1;
+}
+
+/* ─── Message list ───────────────────────────────────────────────────────── */
+
+.messageList {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	gap: var(--mantine-spacing-md);
+	padding-block: var(--mantine-spacing-sm);
+	/* smooth scroll when auto-scrolling to bottom */
+	scroll-behavior: smooth;
+}
+
+/* ─── Message bubbles ────────────────────────────────────────────────────── */
+
+.bubble {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--mantine-spacing-xs);
+}
+
+.bubbleUser {
+	flex-direction: row-reverse;
+}
+
+.bubbleAssistant {
+	flex-direction: row;
+}
+
+.bubbleIcon {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	margin-top: 2px;
+	color: var(--mantine-color-dimmed);
+	background: var(--surface-highlight);
+	border: 1px solid var(--surface-highlight-border);
+}
+
+.bubbleContent {
+	max-width: 78%;
+	padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+	border: 1px solid var(--surface-highlight-border);
+}
+
+.bubbleUser .bubbleContent {
+	background: var(--mantine-primary-color-light);
+	border-color: var(--mantine-primary-color-light-hover);
+}
+
+.bubbleAssistant .bubbleContent {
+	background: var(--surface-highlight);
+}
+
+.bubbleText {
+	font-size: var(--mantine-font-size-sm);
+	line-height: 1.65;
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+/* ─── Blinking cursor shown while streaming ──────────────────────────────── */
+
+.cursor {
+	display: inline-block;
+	width: 2px;
+	height: 0.9em;
+	margin-left: 1px;
+	background: currentColor;
+	vertical-align: text-bottom;
+	opacity: 1;
+	animation: blink 0.75s step-end infinite;
+}
+
+@keyframes blink {
+	50% {
+		opacity: 0;
+	}
+}
+
+/* ─── Empty state ────────────────────────────────────────────────────────── */
+
+.emptyState {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: var(--mantine-spacing-xs);
+	color: var(--mantine-color-dimmed);
+	text-align: center;
+}
+
+/* ─── Markdown content ───────────────────────────────────────────────────── */
+
+.markdown {
+	font-size: var(--mantine-font-size-sm);
+	line-height: 1.65;
+	word-break: break-word;
+}
+
+.markdown > *:first-child {
+	margin-top: 0;
+}
+
+.markdown > *:last-child {
+	margin-bottom: 0;
+}
+
+.markdown p {
+	margin-bottom: 0.6em;
+}
+
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+	font-weight: 700;
+	line-height: 1.3;
+	margin-top: 1em;
+	margin-bottom: 0.4em;
+}
+
+.markdown h1 {
+	font-size: 1.2em;
+}
+.markdown h2 {
+	font-size: 1.1em;
+}
+.markdown h3,
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+	font-size: 1em;
+}
+
+.markdown ul,
+.markdown ol {
+	padding-left: 1.4em;
+	margin-bottom: 0.6em;
+}
+
+.markdown li {
+	margin-bottom: 0.2em;
+}
+
+.markdown li > ul,
+.markdown li > ol {
+	margin-top: 0.2em;
+	margin-bottom: 0;
+}
+
+.markdown code {
+	font-family: var(--mantine-font-family-monospace);
+	font-size: 0.87em;
+	padding: 0.15em 0.35em;
+	border-radius: var(--mantine-radius-xs);
+	background: light-dark(
+		var(--mantine-color-parchment-2),
+		var(--mantine-color-dark-5)
+	);
+}
+
+.markdown pre {
+	background: light-dark(
+		var(--mantine-color-parchment-2),
+		var(--mantine-color-dark-5)
+	);
+	border: 1px solid var(--surface-highlight-border);
+	border-radius: var(--mantine-radius-sm);
+	padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+	overflow-x: auto;
+	margin-bottom: 0.6em;
+}
+
+.markdown pre code {
+	background: none;
+	padding: 0;
+	font-size: 0.85em;
+}
+
+.markdown blockquote {
+	border-left: 3px solid var(--mantine-primary-color-light-hover);
+	margin-left: 0;
+	padding-left: var(--mantine-spacing-sm);
+	color: var(--mantine-color-dimmed);
+	margin-bottom: 0.6em;
+}
+
+.markdown a {
+	color: var(--mantine-primary-color-filled);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.markdown a:hover {
+	opacity: 0.8;
+}
+
+.markdown hr {
+	border: none;
+	border-top: 1px solid var(--surface-highlight-border);
+	margin-block: 0.8em;
+}
+
+.markdown strong {
+	font-weight: 700;
+}
+
+.markdown em {
+	font-style: italic;
+}
+
+.markdown table {
+	border-collapse: collapse;
+	width: 100%;
+	margin-bottom: 0.6em;
+	font-size: 0.9em;
+}
+
+.markdown th,
+.markdown td {
+	border: 1px solid var(--surface-highlight-border);
+	padding: 0.3em 0.6em;
+	text-align: left;
+}
+
+.markdown th {
+	font-weight: 700;
+	background: light-dark(
+		var(--mantine-color-parchment-2),
+		var(--mantine-color-dark-5)
+	);
+}
+
+/* ─── Input row ──────────────────────────────────────────────────────────── */
+
+.inputRow {
+	flex-shrink: 0;
+	display: flex;
+	align-items: flex-end;
+	gap: var(--mantine-spacing-xs);
+	padding-top: var(--mantine-spacing-sm);
+	border-top: 1px solid var(--surface-highlight-border);
+}
+
+.textarea {
+	flex: 1;
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 64em) {
+	.page {
+		padding-top: calc(var(--mantine-spacing-xl) * 3);
+		padding-inline: var(--mantine-spacing-md);
+	}
+}
+
+@media (max-width: 48em) {
+	.page {
+		padding-inline: var(--mantine-spacing-sm);
+	}
+
+	.bubbleContent {
+		max-width: 92%;
+	}
+}
