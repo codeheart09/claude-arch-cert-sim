@@ -221,7 +221,7 @@ export function ExamSimulator({ initialQuestions }: ExamSimulatorProps) {
 			const nextQ = questions[nextIndex];
 			setSelected(
 				nextQ && submittedAnswers.has(nextQ.id)
-					? submittedAnswers.get(nextQ.id)!
+					? (submittedAnswers.get(nextQ.id) ?? "")
 					: "",
 			);
 			questionStartedAtRef.current = Date.now();
@@ -234,7 +234,9 @@ export function ExamSimulator({ initialQuestions }: ExamSimulatorProps) {
 		// Can only navigate to already-answered questions or the current one.
 		if (index > currentIndex && !submittedAnswers.has(q.id)) return;
 		setCurrentIndex(index);
-		setSelected(submittedAnswers.has(q.id) ? submittedAnswers.get(q.id)! : "");
+		setSelected(
+			submittedAnswers.has(q.id) ? (submittedAnswers.get(q.id) ?? "") : "",
+		);
 		if (!submittedAnswers.has(q.id)) {
 			questionStartedAtRef.current = Date.now();
 		}

@@ -94,7 +94,7 @@ export function getRandomQuestions(
 	return getDb()
 		.select()
 		.from(questions)
-		.where(notInArray(questions.id, excludeIds))
+		.where(notInArray(questions.id, [...excludeIds]))
 		.orderBy(sql`RANDOM()`)
 		.limit(limit)
 		.all();
@@ -119,7 +119,7 @@ export function getRandomQuestion(
 	return getDb()
 		.select()
 		.from(questions)
-		.where(notInArray(questions.id, excludeIds))
+		.where(notInArray(questions.id, [...excludeIds]))
 		.orderBy(sql`RANDOM()`)
 		.limit(1)
 		.get();

@@ -31,7 +31,7 @@ async function loadSubject() {
 const baseInput = {
 	question: "What is tool use?",
 	alternatives: { a: "A", b: "B", c: "C", d: "D" },
-	correctAlternative: "b" as const,
+	correct_alternative: "b" as const,
 	insights: { a: "A wrong", b: "B right", c: "C wrong", d: "D wrong" },
 	difficulty: "medium" as const,
 	domain: "tool-design-mcp" as const,

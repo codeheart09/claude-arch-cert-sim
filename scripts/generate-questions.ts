@@ -74,7 +74,7 @@ async function main(): Promise<void> {
 
 	const summary = await generateQuestionBatch(count, { log });
 
-	console.log("\n" + "─".repeat(72));
+	console.log(`\n${"─".repeat(72)}`);
 	console.log("Results:");
 	for (const result of summary.results) {
 		printResult(result);
