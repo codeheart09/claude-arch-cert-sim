@@ -1,5 +1,12 @@
 import { getDb } from "./drizzle";
-import { answers, examSimulations, type User, users } from "./schema";
+import {
+	aiConversationMessages,
+	aiConversations,
+	answers,
+	examSimulations,
+	type User,
+	users,
+} from "./schema";
 
 export function getUser(): User | undefined {
 	return getDb().select().from(users).limit(1).get();
@@ -15,9 +22,11 @@ export function createUser(name: string): User {
 	return user;
 }
 
-/** Wipes all user progress. Deletes in FK order: answers → exam_simulations → users. */
+/** Wipes all user progress. Deletes in FK order to avoid constraint violations. */
 export function resetUserData(): void {
 	const db = getDb();
+	db.delete(aiConversationMessages).run();
+	db.delete(aiConversations).run();
 	db.delete(answers).run();
 	db.delete(examSimulations).run();
 	db.delete(users).run();

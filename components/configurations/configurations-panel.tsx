@@ -312,6 +312,7 @@ export function ConfigurationsPanel({
 						<List.Item>Your user profile</List.Item>
 						<List.Item>All practice answers and history</List.Item>
 						<List.Item>All exam simulation records and scores</List.Item>
+						<List.Item>All AI tutor conversation history</List.Item>
 					</List>
 					<Alert color="red" variant="light">
 						There is no backup. Once deleted, this data cannot be recovered.
@@ -512,8 +513,8 @@ export function ConfigurationsPanel({
 
 						<Text c="dimmed" size="sm">
 							Permanently delete all user progress — practice answers, exam
-							simulation records, and your user profile. Questions in the
-							database are not affected.
+							simulation records, AI tutor conversations, and your user profile.
+							Questions in the database are not affected.
 						</Text>
 
 						<Divider />
