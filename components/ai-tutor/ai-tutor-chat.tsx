@@ -393,7 +393,7 @@ export function AiTutorChat({ initialConversations, initialActiveId }: Props) {
 						className={classes.selector}
 						data={conversations.map((c) => ({
 							value: String(c.id),
-							label: c.title,
+							label: `${c.title}...`,
 						}))}
 						value={activeId !== null ? String(activeId) : null}
 						onChange={handleSelectConversation}

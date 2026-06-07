@@ -23,16 +23,6 @@
 	line-height: var(--mantine-h3-line-height);
 }
 
-/* ─── Section header ───────────────────────────────────────────────────────── */
-
-.sectionLabel {
-	font-size: var(--mantine-font-size-xs);
-	font-weight: 700;
-	text-transform: uppercase;
-	letter-spacing: 0.09em;
-	color: var(--mantine-color-dimmed);
-}
-
 /* ─── Stat cards (Row 1) ───────────────────────────────────────────────────── */
 
 .statCard {

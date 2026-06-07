@@ -23,9 +23,9 @@ const PERIOD_DATA = [
 ];
 
 function accuracyColor(rate: number): string {
-	if (rate >= 80) return "green.6";
-	if (rate >= 60) return "yellow.6";
-	return "red.6";
+	if (rate < 50) return "red.6";
+	if (rate < 72) return "yellow.6";
+	return "green.6";
 }
 
 function formatAnswerTime(ms: number): { main: string; sub: string } {
@@ -93,7 +93,7 @@ export function AnalyticsDashboard({ data, period }: Props) {
 
 	return (
 		<div className={classes.page}>
-			<Stack gap="xl">
+			<Stack gap="md">
 				{/* ── Header & period filter ── */}
 				<div className={classes.controls}>
 					<Text component="h1" className={classes.pageTitle}>
@@ -108,208 +108,199 @@ export function AnalyticsDashboard({ data, period }: Props) {
 				</div>
 
 				{/* ── Row 1: Indicator cards ── */}
-				<Stack gap="xs">
-					<Text className={classes.sectionLabel}>Overview</Text>
-					<SimpleGrid cols={{ base: 1, xs: 2, md: 4 }} spacing="md">
-						{/* Accuracy */}
-						<div className={classes.statCard}>
-							<Text className={classes.statLabel}>Accuracy</Text>
-							{isEmpty || ringRate === null ? (
-								<EmptyValue />
-							) : (
-								<RingProgress
-									size={110}
-									thickness={10}
-									roundCaps
-									sections={[
-										{ value: ringRate, color: accuracyColor(ringRate) },
-									]}
-									label={
-										<div className={classes.ringLabel}>
-											<span className={classes.ringValue}>{ringRate}</span>
-											<span className={classes.ringUnit}>%</span>
-										</div>
-									}
-								/>
-							)}
-						</div>
+				<SimpleGrid cols={{ base: 1, xs: 2, md: 4 }} spacing="md">
+					{/* Accuracy */}
+					<div className={classes.statCard}>
+						<Text className={classes.statLabel}>Overall Accuracy</Text>
+						{isEmpty || ringRate === null ? (
+							<EmptyValue />
+						) : (
+							<RingProgress
+								size={110}
+								thickness={10}
+								roundCaps
+								sections={[{ value: ringRate, color: accuracyColor(ringRate) }]}
+								label={
+									<div className={classes.ringLabel}>
+										<span className={classes.ringValue}>{ringRate}</span>
+										<span className={classes.ringUnit}>%</span>
+									</div>
+								}
+							/>
+						)}
+					</div>
 
-						{/* Exam passes */}
-						<div className={classes.statCard}>
-							<Text className={classes.statLabel}>Exams Passed</Text>
-							<Text
-								className={classes.statValue}
-								c={isEmpty ? "dimmed" : undefined}
-							>
-								{isEmpty ? "—" : String(data.examPassCount)}
-							</Text>
-							{!isEmpty && (
-								<Text className={classes.statNote}>score ≥ 720 / 1000</Text>
-							)}
-						</div>
+					{/* Exam passes */}
+					<div className={classes.statCard}>
+						<Text className={classes.statLabel}>Overall Exams Passed</Text>
+						<Text
+							className={classes.statValue}
+							c={isEmpty ? "dimmed" : undefined}
+						>
+							{isEmpty ? "—" : String(data.examPassCount)}
+						</Text>
+						{!isEmpty && (
+							<Text className={classes.statNote}>score ≥ 720 / 1000</Text>
+						)}
+					</div>
 
-						{/* Avg answer time */}
-						<div className={classes.statCard}>
-							<Text className={classes.statLabel}>Avg Answer Time</Text>
-							{isEmpty || answerTime === null ? (
-								<EmptyValue />
-							) : (
-								<>
-									<Text className={classes.statValue}>{answerTime.main}</Text>
-									<Text className={classes.statNote}>min</Text>
-									<span className={classes.statSub}>{answerTime.sub}</span>
-								</>
-							)}
-						</div>
+					{/* Avg answer time */}
+					<div className={classes.statCard}>
+						<Text className={classes.statLabel}>Overall Avg Answer Time</Text>
+						{isEmpty || answerTime === null ? (
+							<EmptyValue />
+						) : (
+							<>
+								<Text className={classes.statValue}>{answerTime.main}</Text>
+								<Text className={classes.statNote}>min</Text>
+								<span className={classes.statSub}>{answerTime.sub}</span>
+							</>
+						)}
+					</div>
 
-						{/* Avg exam time */}
-						<div className={classes.statCard}>
-							<Text className={classes.statLabel}>Avg Exam Time</Text>
-							{examTime === null ? (
-								<EmptyValue />
-							) : (
-								<>
-									<Text className={classes.statValue}>{examTime.main}</Text>
-									<Text className={classes.statNote}>h</Text>
-									<span className={classes.statSub}>{examTime.sub}</span>
-								</>
-							)}
-						</div>
-					</SimpleGrid>
-				</Stack>
+					{/* Avg exam time */}
+					<div className={classes.statCard}>
+						<Text className={classes.statLabel}>Overall Avg Exam Time</Text>
+						{examTime === null ? (
+							<EmptyValue />
+						) : (
+							<>
+								<Text className={classes.statValue}>{examTime.main}</Text>
+								<Text className={classes.statNote}>h</Text>
+								<span className={classes.statSub}>{examTime.sub}</span>
+							</>
+						)}
+					</div>
+				</SimpleGrid>
 
 				{/* ── Row 2: Accuracy by group ── */}
-				<Stack gap="xs">
-					<Text className={classes.sectionLabel}>Accuracy by Category</Text>
-					<SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
-						<div className={classes.chartCard}>
-							<div className={classes.chartTitle}>By Domain</div>
-							{isEmpty || domainChartData.length === 0 ? (
-								<EmptyChart />
-							) : (
-								<BarChart
-									data={domainChartData}
-									dataKey="label"
-									series={[
-										{ name: "accuracy", color: "umber.5", label: "Accuracy" },
-									]}
-									orientation="vertical"
-									h={220}
-									valueFormatter={(v) => `${v}%`}
-									xAxisProps={{
-										domain: [0, 120],
-										ticks: [0, 25, 50, 75, 100],
-										tickFormatter: (v: number) => `${v}%`,
-									}}
-									yAxisProps={{ width: 85 }}
-									barProps={{ barSize: 20 }}
-									withBarValueLabel
-									withTooltip
-									withLegend={false}
-									gridAxis="y"
-								/>
-							)}
-						</div>
+				<SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
+					<div className={classes.chartCard}>
+						<div className={classes.chartTitle}>Accuracy by Domain</div>
+						{isEmpty || domainChartData.length === 0 ? (
+							<EmptyChart />
+						) : (
+							<BarChart
+								data={domainChartData}
+								dataKey="label"
+								series={[
+									{ name: "accuracy", color: "orange.5", label: "Accuracy" },
+								]}
+								orientation="vertical"
+								h={220}
+								valueFormatter={(v) => `${v}%`}
+								xAxisProps={{
+									domain: [0, 120],
+									ticks: [0, 25, 50, 75, 100],
+									tickFormatter: (v: number) => `${v}%`,
+								}}
+								yAxisProps={{ width: 85 }}
+								barProps={{ barSize: 20 }}
+								withBarValueLabel
+								withTooltip
+								withLegend={false}
+								gridAxis="y"
+							/>
+						)}
+					</div>
 
-						<div className={classes.chartCard}>
-							<div className={classes.chartTitle}>By Scenario</div>
-							{isEmpty || scenarioChartData.length === 0 ? (
-								<EmptyChart />
-							) : (
-								<BarChart
-									data={scenarioChartData}
-									dataKey="label"
-									series={[
-										{ name: "accuracy", color: "blue.5", label: "Accuracy" },
-									]}
-									orientation="vertical"
-									h={220}
-									valueFormatter={(v) => `${v}%`}
-									xAxisProps={{
-										domain: [0, 120],
-										ticks: [0, 25, 50, 75, 100],
-										tickFormatter: (v: number) => `${v}%`,
-									}}
-									yAxisProps={{ width: 85 }}
-									barProps={{ barSize: 20 }}
-									withBarValueLabel
-									withTooltip
-									withLegend={false}
-									gridAxis="y"
-								/>
-							)}
-						</div>
-					</SimpleGrid>
-				</Stack>
+					<div className={classes.chartCard}>
+						<div className={classes.chartTitle}>Accuracy by Scenario</div>
+						{isEmpty || scenarioChartData.length === 0 ? (
+							<EmptyChart />
+						) : (
+							<BarChart
+								data={scenarioChartData}
+								dataKey="label"
+								series={[
+									{ name: "accuracy", color: "grape.7", label: "Accuracy" },
+								]}
+								orientation="vertical"
+								h={220}
+								valueFormatter={(v) => `${v}%`}
+								xAxisProps={{
+									domain: [0, 120],
+									ticks: [0, 25, 50, 75, 100],
+									tickFormatter: (v: number) => `${v}%`,
+								}}
+								yAxisProps={{ width: 85 }}
+								barProps={{ barSize: 20 }}
+								withBarValueLabel
+								withTooltip
+								withLegend={false}
+								gridAxis="y"
+							/>
+						)}
+					</div>
+				</SimpleGrid>
 
 				{/* ── Row 3: Time series ── */}
-				<Stack gap="xs">
-					<Text className={classes.sectionLabel}>Progress Over Time</Text>
-					<SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
-						<div className={classes.chartCard}>
-							<div className={classes.chartTitle}>Accuracy Trend</div>
-							{isEmpty || correctnessChartData.length < 2 ? (
-								<EmptyChart message="Answer more questions to see your accuracy trend." />
-							) : (
-								<AreaChart
-									data={correctnessChartData}
-									dataKey="batch"
-									series={[
-										{ name: "accuracy", color: "umber.5", label: "Accuracy %" },
-									]}
-									h={220}
-									curveType="monotone"
-									withDots={correctnessChartData.length <= 15}
-									withGradient
-									fillOpacity={0.15}
-									valueFormatter={(v) => `${v.toFixed(1)}%`}
-									yAxisProps={{
-										domain: [0, 100],
-										tickFormatter: (v) => `${v}%`,
-									}}
-									xAxisProps={{
-										label: {
-											value: "Batch",
-											position: "insideBottom",
-											offset: -2,
-										},
-									}}
-									withTooltip
-									withLegend={false}
-								/>
-							)}
-						</div>
+				<SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
+					<div className={classes.chartCard}>
+						<div className={classes.chartTitle}>Accuracy Trend Over Time</div>
+						{isEmpty || correctnessChartData.length < 2 ? (
+							<EmptyChart message="Answer more questions to see your accuracy trend." />
+						) : (
+							<AreaChart
+								data={correctnessChartData}
+								dataKey="batch"
+								series={[
+									{ name: "accuracy", color: "orange.5", label: "Accuracy %" },
+								]}
+								h={220}
+								curveType="monotone"
+								withDots={correctnessChartData.length <= 15}
+								withGradient
+								fillOpacity={0.15}
+								valueFormatter={(v) => `${v.toFixed(1)}%`}
+								yAxisProps={{
+									domain: [0, 100],
+									tickFormatter: (v) => `${v}%`,
+								}}
+								xAxisProps={{
+									label: {
+										value: "Batch",
+										position: "insideBottom",
+										offset: -2,
+									},
+								}}
+								withTooltip
+								withLegend={false}
+							/>
+						)}
+					</div>
 
-						<div className={classes.chartCard}>
-							<div className={classes.chartTitle}>Answer Time Trend</div>
-							{isEmpty || responseTimeChartData.length < 2 ? (
-								<EmptyChart message="Answer more questions to see your response time trend." />
-							) : (
-								<LineChart
-									data={responseTimeChartData}
-									dataKey="batch"
-									series={[
-										{ name: "seconds", color: "blue.5", label: "Avg time (s)" },
-									]}
-									h={220}
-									curveType="monotone"
-									withDots={responseTimeChartData.length <= 15}
-									strokeWidth={2}
-									valueFormatter={(v) => `${v}s`}
-									xAxisProps={{
-										label: {
-											value: "Batch",
-											position: "insideBottom",
-											offset: -2,
-										},
-									}}
-									withTooltip
-									withLegend={false}
-								/>
-							)}
+					<div className={classes.chartCard}>
+						<div className={classes.chartTitle}>
+							Answer Time Trend Over Time
 						</div>
-					</SimpleGrid>
-				</Stack>
+						{isEmpty || responseTimeChartData.length < 2 ? (
+							<EmptyChart message="Answer more questions to see your response time trend." />
+						) : (
+							<LineChart
+								data={responseTimeChartData}
+								dataKey="batch"
+								series={[
+									{ name: "seconds", color: "grape.7", label: "Avg time (s)" },
+								]}
+								h={220}
+								curveType="monotone"
+								withDots={responseTimeChartData.length <= 15}
+								strokeWidth={2}
+								valueFormatter={(v) => `${v}s`}
+								xAxisProps={{
+									label: {
+										value: "Batch",
+										position: "insideBottom",
+										offset: -2,
+									},
+								}}
+								withTooltip
+								withLegend={false}
+							/>
+						)}
+					</div>
+				</SimpleGrid>
 			</Stack>
 		</div>
 	);
