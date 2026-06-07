@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { getClient } from "../db/drizzle";
 import {
+	getGeneratedQuestionInputs,
 	getQuestionById,
 	type ImportResult,
 	importQuestion,
@@ -22,6 +23,11 @@ export function getFullQuestion(id: number): Question | undefined {
 /** Soft-deletes a question by id. */
 export function deleteQuestion(id: number): void {
 	softDeleteQuestion(id);
+}
+
+/** Returns AI-generated questions serialized in the authored JSON file shape. */
+export function getGeneratedQuestionsForJson(): QuestionInput[] {
+	return getGeneratedQuestionInputs();
 }
 
 export interface ImportSingleResult {

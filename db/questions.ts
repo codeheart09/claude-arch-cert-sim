@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import type Database from "better-sqlite3";
-import { and, eq, notInArray, sql } from "drizzle-orm";
+import { and, asc, eq, notInArray, sql } from "drizzle-orm";
 import { getDb } from "./drizzle";
 import {
 	type Alternative,
@@ -151,6 +151,32 @@ export function getQuestionById(id: number): Question | undefined {
 		.from(questions)
 		.where(and(eq(questions.id, id), eq(questions.deleted, false)))
 		.get();
+}
+
+/** Maps a runtime DB row back into the JSON import/export schema. */
+export function questionRowToInput(row: Question): QuestionInput {
+	return {
+		question: row.question,
+		difficulty: row.difficulty,
+		domain: row.domain ?? undefined,
+		scenario: row.scenario ?? undefined,
+		alternatives: JSON.parse(row.alternatives) as Partial<
+			Record<Alternative, string>
+		>,
+		correct_alternative: row.correctAlternative as Alternative,
+		insights: JSON.parse(row.insights) as Partial<Record<Alternative, string>>,
+	};
+}
+
+/** Returns all non-deleted AI-generated questions in JSON file schema order. */
+export function getGeneratedQuestionInputs(): QuestionInput[] {
+	return getDb()
+		.select()
+		.from(questions)
+		.where(and(eq(questions.source, "generated"), eq(questions.deleted, false)))
+		.orderBy(asc(questions.createdAt), asc(questions.id))
+		.all()
+		.map(questionRowToInput);
 }
 
 export function findByContentHash(

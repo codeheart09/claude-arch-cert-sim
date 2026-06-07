@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
 	embedPassages: vi.fn(),
 	importQuestion: vi.fn(),
+	getGeneratedQuestionInputs: vi.fn(),
 	getQuestionById: vi.fn(),
 	softDeleteQuestion: vi.fn(),
 	getClient: vi.fn().mockReturnValue({}),
@@ -15,6 +16,7 @@ vi.mock("./embeddings", () => ({
 
 vi.mock("../db/questions", () => ({
 	importQuestion: mocks.importQuestion,
+	getGeneratedQuestionInputs: mocks.getGeneratedQuestionInputs,
 	getQuestionById: mocks.getQuestionById,
 	softDeleteQuestion: mocks.softDeleteQuestion,
 }));
