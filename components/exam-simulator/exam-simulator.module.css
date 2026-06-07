@@ -1,0 +1,352 @@
+/* ─── Page shells ─────────────────────────────────────────────────────────── */
+
+.page {
+	min-height: 100dvh;
+	display: flex;
+	justify-content: center;
+	padding-block: var(--mantine-spacing-md);
+	padding-inline: var(--mantine-spacing-xl);
+	padding-top: calc(var(--mantine-spacing-xl) * 3);
+}
+
+.pageSetup {
+	min-height: 100dvh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding-inline: var(--mantine-spacing-xl);
+	padding-block: calc(var(--mantine-spacing-xl) * 3);
+}
+
+.pageResults {
+	min-height: 100dvh;
+	padding-inline: var(--mantine-spacing-xl);
+	padding-top: calc(var(--mantine-spacing-xl) * 3.5);
+	padding-bottom: calc(var(--mantine-spacing-xl) * 2);
+}
+
+.inner {
+	width: 100%;
+}
+
+/* ─── Cards ───────────────────────────────────────────────────────────────── */
+
+.card {
+	width: 100%;
+	padding: var(--mantine-spacing-lg);
+	border: 1px solid var(--surface-highlight-border);
+	background: var(--surface-highlight);
+	box-shadow: var(--mantine-shadow-sm);
+}
+
+.setupCard {
+	width: 26rem;
+	max-width: 100%;
+	padding: var(--mantine-spacing-xl);
+	border: 1px solid var(--surface-highlight-border);
+	background: var(--surface-highlight);
+	box-shadow: var(--mantine-shadow-sm);
+}
+
+/* ─── Question text & choices ─────────────────────────────────────────────── */
+
+.question {
+	font-size: var(--mantine-font-size-lg);
+	line-height: var(--mantine-line-height-md);
+	font-weight: 600;
+}
+
+.choice {
+	padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+	border: 1px solid var(--surface-highlight-border);
+	border-radius: var(--mantine-radius-md);
+	transition:
+		background-color 120ms ease,
+		border-color 120ms ease;
+}
+
+.choice:hover {
+	border-color: var(--mantine-primary-color-filled);
+}
+
+.choiceSelected {
+	border-color: var(--mantine-primary-color-filled);
+	background: var(--mantine-primary-color-light);
+}
+
+.choiceCorrect {
+	border-color: var(--mantine-color-green-filled);
+	background: var(--mantine-color-green-light);
+}
+
+.choiceIncorrect {
+	border-color: var(--mantine-color-red-filled);
+	background: var(--mantine-color-red-light);
+}
+
+.choiceLabel {
+	font-size: var(--mantine-font-size-md);
+	line-height: var(--mantine-line-height-sm);
+}
+
+/* ─── Timer badge ─────────────────────────────────────────────────────────── */
+
+.timerBadge {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--mantine-spacing-xs);
+	padding: 6px var(--mantine-spacing-sm);
+	border: 1px solid var(--surface-highlight-border);
+	border-radius: var(--mantine-radius-md);
+	background: var(--surface-highlight);
+	box-shadow: var(--mantine-shadow-xs);
+	transition:
+		border-color 200ms ease,
+		background 200ms ease,
+		color 200ms ease;
+}
+
+.timerBadgeOvertime {
+	border-color: var(--mantine-color-red-4);
+	background: var(--mantine-color-red-light);
+	color: var(--mantine-color-red-filled);
+}
+
+.timerDigits {
+	font-family: var(--mantine-font-family-monospace);
+	font-size: 1.125rem;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+	letter-spacing: 0.06em;
+	line-height: 1;
+}
+
+.statusDot {
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	flex-shrink: 0;
+	transition: background 200ms ease;
+}
+
+.statusDotRunning {
+	background: var(--mantine-color-green-filled);
+	box-shadow: 0 0 0 2px var(--mantine-color-green-light);
+}
+
+.statusDotOvertime {
+	background: var(--mantine-color-red-filled);
+	box-shadow: 0 0 0 2px var(--mantine-color-red-light);
+}
+
+.statusDotDone {
+	background: var(--mantine-color-dimmed);
+	box-shadow: none;
+}
+
+/* ─── Header row ──────────────────────────────────────────────────────────── */
+
+.headerRow {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--mantine-spacing-sm);
+}
+
+.headerControls {
+	display: flex;
+	align-items: center;
+	gap: var(--mantine-spacing-xs);
+}
+
+.timeInputSeparator {
+	font-size: var(--mantine-font-size-xl);
+	font-weight: 600;
+	color: var(--mantine-color-dimmed);
+	line-height: 1;
+	padding-bottom: calc(var(--mantine-spacing-xs) * 0.5);
+}
+
+/* ─── Question navigation grid ────────────────────────────────────────────── */
+
+.questionGrid {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.questionBox {
+	width: 32px;
+	height: 32px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid var(--surface-highlight-border);
+	border-radius: var(--mantine-radius-sm);
+	background: var(--surface-highlight);
+	font-size: var(--mantine-font-size-xs);
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+	cursor: pointer;
+	transition:
+		background-color 120ms ease,
+		border-color 120ms ease,
+		color 120ms ease,
+		transform 80ms ease;
+	user-select: none;
+	color: var(--mantine-color-dimmed);
+}
+
+.questionBox:hover {
+	transform: scale(1.08);
+}
+
+.questionBoxAnswered {
+	background: var(--mantine-primary-color-filled);
+	border-color: var(--mantine-primary-color-filled);
+	color: var(--mantine-color-white);
+	cursor: pointer;
+}
+
+.questionBoxCurrent {
+	border-color: var(--mantine-primary-color-filled);
+	border-width: 2px;
+	color: var(--mantine-primary-color-filled);
+	cursor: default;
+}
+
+.questionBoxDisabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+	pointer-events: none;
+}
+
+/* ─── Results page ────────────────────────────────────────────────────────── */
+
+.resultsHero {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--mantine-spacing-sm);
+	padding-block: var(--mantine-spacing-xl);
+	padding-inline: var(--mantine-spacing-xl);
+	border: 1px solid var(--surface-highlight-border);
+	background: var(--surface-highlight);
+	box-shadow: var(--mantine-shadow-sm);
+	border-radius: var(--mantine-radius-md);
+	text-align: center;
+}
+
+.scoreNumber {
+	font-size: 4.5rem;
+	font-weight: 800;
+	font-variant-numeric: tabular-nums;
+	line-height: 1;
+	letter-spacing: -0.02em;
+}
+
+.scoreDivider {
+	font-size: 2rem;
+	font-weight: 300;
+	color: var(--mantine-color-dimmed);
+	line-height: 1;
+}
+
+.scoreMax {
+	font-size: 2rem;
+	font-weight: 600;
+	color: var(--mantine-color-dimmed);
+	line-height: 1;
+}
+
+.statCard {
+	padding: var(--mantine-spacing-md) var(--mantine-spacing-lg);
+	border: 1px solid var(--surface-highlight-border);
+	background: var(--surface-highlight);
+	box-shadow: var(--mantine-shadow-xs);
+	border-radius: var(--mantine-radius-md);
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.statValue {
+	font-size: var(--mantine-font-size-xl);
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+	line-height: 1.2;
+}
+
+.statLabel {
+	font-size: var(--mantine-font-size-sm);
+	color: var(--mantine-color-dimmed);
+}
+
+.breakdownCard {
+	padding: var(--mantine-spacing-lg);
+	border: 1px solid var(--surface-highlight-border);
+	background: var(--surface-highlight);
+	box-shadow: var(--mantine-shadow-xs);
+	border-radius: var(--mantine-radius-md);
+}
+
+.breakdownRow {
+	display: flex;
+	align-items: center;
+	gap: var(--mantine-spacing-sm);
+}
+
+.breakdownLabel {
+	font-size: var(--mantine-font-size-sm);
+	min-width: 12rem;
+	flex-shrink: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.breakdownCount {
+	font-size: var(--mantine-font-size-xs);
+	color: var(--mantine-color-dimmed);
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+/* ─── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 48em) {
+	.page {
+		padding-inline: var(--mantine-spacing-md);
+		padding-top: calc(var(--mantine-spacing-xl) * 2.5);
+	}
+
+	.pageSetup {
+		padding-inline: var(--mantine-spacing-md);
+	}
+
+	.pageResults {
+		padding-inline: var(--mantine-spacing-md);
+	}
+
+	.card {
+		padding: var(--mantine-spacing-md);
+	}
+
+	.setupCard {
+		width: 100%;
+		padding: var(--mantine-spacing-lg);
+	}
+
+	.timerDigits {
+		font-size: 1rem;
+	}
+
+	.scoreNumber {
+		font-size: 3rem;
+	}
+
+	.breakdownLabel {
+		min-width: 8rem;
+	}
+}

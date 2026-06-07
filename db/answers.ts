@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import { getDb } from "./drizzle";
 import { type Answer, answers, type NewAnswer } from "./schema";
 
@@ -10,4 +11,15 @@ export function insertAnswer(input: NewAnswer): Answer {
 	}
 
 	return answer;
+}
+
+/** Returns all answers belonging to a specific exam simulation, in insertion order. */
+export function getAnswersByExamSimulationId(
+	examSimulationId: number,
+): Answer[] {
+	return getDb()
+		.select()
+		.from(answers)
+		.where(eq(answers.examSimulationId, examSimulationId))
+		.all();
 }

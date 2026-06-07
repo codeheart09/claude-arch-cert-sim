@@ -79,9 +79,27 @@ export type Question = typeof questions.$inferSelect;
 export type NewQuestion = typeof questions.$inferInsert;
 
 /**
- * A submitted answer in the Random Questions practice mode. One row per Submit.
- * `selectedAlternative` is the chosen option's letter; `isCorrect` is a real
- * boolean (stored 0/1). The FK to `questions` enables quick joins for analytics.
+ * One completed (or time-expired) exam simulation session.
+ * `completed` is true when all 60 questions were answered before time ran out.
+ * `duration` is the actual elapsed ms at submission (not the configured limit).
+ * `score` is 0–1000 (correct count × 1000/60, rounded).
+ */
+export const examSimulations = sqliteTable("exam_simulations", {
+	id: integer("id").primaryKey({ autoIncrement: true }),
+	completed: integer("completed", { mode: "boolean" }).notNull(),
+	duration: integer("duration").notNull(),
+	score: integer("score").notNull(),
+	createdAt: integer("created_at", { mode: "timestamp" })
+		.notNull()
+		.default(sql`(unixepoch())`),
+});
+
+export type ExamSimulation = typeof examSimulations.$inferSelect;
+export type NewExamSimulation = typeof examSimulations.$inferInsert;
+
+/**
+ * A submitted answer — covers both practice mode and exam simulations.
+ * `examSimulationId` is null for practice-mode answers; set for exam answers.
  */
 export const answers = sqliteTable("answers", {
 	id: integer("id").primaryKey({ autoIncrement: true }),
@@ -93,6 +111,9 @@ export const answers = sqliteTable("answers", {
 	}).notNull(),
 	isCorrect: integer("is_correct", { mode: "boolean" }).notNull(),
 	duration: integer("duration"),
+	examSimulationId: integer("exam_simulation_id").references(
+		() => examSimulations.id,
+	),
 	createdAt: integer("created_at", { mode: "timestamp" })
 		.notNull()
 		.default(sql`(unixepoch())`),

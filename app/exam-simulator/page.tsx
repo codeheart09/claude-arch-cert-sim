@@ -1,10 +1,9 @@
-import { PlaceholderPage } from "@/components/placeholder-page/placeholder-page";
+import { connection } from "next/server";
+import { ExamSimulator } from "@/components/exam-simulator/exam-simulator";
+import { getExamQuestions } from "@/lib/exam";
 
-export default function ExamSimulatorPage() {
-	return (
-		<PlaceholderPage
-			title="Exam Simulator"
-			message="Full-length certification practice sessions will start from here."
-		/>
-	);
+export default async function ExamSimulatorPage() {
+	await connection();
+	const initialQuestions = getExamQuestions();
+	return <ExamSimulator initialQuestions={initialQuestions} />;
 }

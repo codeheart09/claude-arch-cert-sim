@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import type Database from "better-sqlite3";
-import { eq, notInArray, sql } from "drizzle-orm";
+import { and, eq, notInArray, sql } from "drizzle-orm";
 import { getDb } from "./drizzle";
 import {
 	type Alternative,
@@ -47,6 +47,50 @@ export function hashQuestion(question: string): string {
 }
 
 // ─── Lookups ──────────────────────────────────────────────────────────────────
+
+/**
+ * Returns up to `limit` random questions for a specific domain + scenario pair.
+ * Used by the exam question-selection algorithm to build a balanced 60-question set.
+ */
+export function getQuestionsByDomainScenario(
+	domain: Domain,
+	scenario: Scenario,
+	limit: number,
+): Question[] {
+	return getDb()
+		.select()
+		.from(questions)
+		.where(and(eq(questions.domain, domain), eq(questions.scenario, scenario)))
+		.orderBy(sql`RANDOM()`)
+		.limit(limit)
+		.all();
+}
+
+/**
+ * Returns up to `limit` random questions, optionally excluding a set of IDs.
+ * Used to fill the exam pool when domain/scenario pairs fall short of 60.
+ */
+export function getRandomQuestions(
+	limit: number,
+	excludeIds: readonly number[] = [],
+): Question[] {
+	if (excludeIds.length === 0) {
+		return getDb()
+			.select()
+			.from(questions)
+			.orderBy(sql`RANDOM()`)
+			.limit(limit)
+			.all();
+	}
+
+	return getDb()
+		.select()
+		.from(questions)
+		.where(notInArray(questions.id, excludeIds))
+		.orderBy(sql`RANDOM()`)
+		.limit(limit)
+		.all();
+}
 
 /**
  * A single uniformly-random question, optionally excluding already-served ids.
