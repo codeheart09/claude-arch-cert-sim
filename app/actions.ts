@@ -16,7 +16,7 @@ import {
 	gradeAndRecordAnswer,
 	type PracticeQuestion,
 } from "@/lib/practice";
-import { createUser, getUser } from "@/lib/user";
+import { createUser, getUser, resetUserData } from "@/lib/user";
 import type { CreateUserState } from "@/lib/user-form";
 
 export async function createLocalUser(
@@ -93,6 +93,12 @@ export async function recordSingleExamAnswer(
 		throw new Error(`Invalid alternative: ${selected}`);
 	}
 	recordExamAnswer(examSimulationId, questionId, selected, durationMs);
+}
+
+/** Wipes all user progress (answers, exam simulations, user profile). */
+export async function resetUserDataAction(): Promise<void> {
+	resetUserData();
+	refresh();
 }
 
 /**

@@ -1,0 +1,65 @@
+.pageContainer {
+	padding-top: calc(var(--mantine-spacing-xl) * 3.5);
+	padding-bottom: calc(var(--mantine-spacing-xl) * 2);
+}
+
+.logArea {
+	background: light-dark(
+		var(--mantine-color-gray-0),
+		var(--mantine-color-dark-8)
+	);
+	border: 1px solid
+		light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-6));
+	border-radius: var(--mantine-radius-md);
+	padding: var(--mantine-spacing-xs);
+}
+
+.logEntry {
+	font-family: var(--mantine-font-family-monospace);
+	font-size: var(--mantine-font-size-xs);
+	padding: 2px var(--mantine-spacing-xs);
+	border-radius: var(--mantine-radius-xs);
+	line-height: 1.5;
+	overflow-wrap: break-word;
+	word-break: break-all;
+}
+
+.logEntry:hover {
+	background: light-dark(
+		var(--mantine-color-gray-1),
+		var(--mantine-color-dark-6)
+	);
+}
+
+.logIconWrapper {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+}
+
+.logText {
+	flex: 1;
+	min-width: 0;
+}
+
+.statCard {
+	text-align: center;
+	padding: var(--mantine-spacing-lg);
+}
+
+.statNumber {
+	font-size: 2.25rem;
+	font-weight: 700;
+	line-height: 1;
+}
+
+.dangerSection {
+	border-color: light-dark(
+		var(--mantine-color-red-4),
+		var(--mantine-color-red-9)
+	);
+}
+
+.dangerTitle {
+	color: light-dark(var(--mantine-color-red-7), var(--mantine-color-red-4));
+}

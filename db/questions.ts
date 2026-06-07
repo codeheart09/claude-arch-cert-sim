@@ -48,6 +48,14 @@ export function hashQuestion(question: string): string {
 
 // ─── Lookups ──────────────────────────────────────────────────────────────────
 
+export function getQuestionCount(): number {
+	const row = getDb()
+		.select({ count: sql<number>`COUNT(*)` })
+		.from(questions)
+		.get();
+	return row?.count ?? 0;
+}
+
 /**
  * Returns up to `limit` random questions for a specific domain + scenario pair.
  * Used by the exam question-selection algorithm to build a balanced 60-question set.

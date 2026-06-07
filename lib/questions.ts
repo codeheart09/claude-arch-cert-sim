@@ -8,6 +8,7 @@ import {
 import { embedPassages } from "./embeddings";
 
 export type { QuestionInput } from "../db/questions";
+export { getQuestionCount } from "../db/questions";
 
 export interface ImportSingleResult {
 	id: number;

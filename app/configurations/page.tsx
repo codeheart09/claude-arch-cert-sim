@@ -1,10 +1,7 @@
-import { PlaceholderPage } from "@/components/placeholder-page/placeholder-page";
+import { ConfigurationsPanel } from "@/components/configurations/configurations-panel";
+import { getQuestionCount } from "@/lib/questions";
 
 export default function ConfigurationsPage() {
-	return (
-		<PlaceholderPage
-			title="Configurations"
-			message="Simulator preferences and local settings will be managed here."
-		/>
-	);
+	const count = getQuestionCount();
+	return <ConfigurationsPanel initialCount={count} />;
 }
