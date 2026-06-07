@@ -116,6 +116,7 @@ describe("gradeAndRecordAnswer", () => {
 			questionId: 7,
 			selectedAlternative: "b",
 			isCorrect: true,
+			duration: null,
 		});
 	});
 
@@ -130,6 +131,7 @@ describe("gradeAndRecordAnswer", () => {
 			questionId: 7,
 			selectedAlternative: "a",
 			isCorrect: false,
+			duration: null,
 		});
 	});
 
