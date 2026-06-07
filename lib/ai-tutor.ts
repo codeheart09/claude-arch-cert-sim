@@ -4,6 +4,7 @@ import { getAnalyticsData } from "./analytics";
 import { getAnthropic, getDefaultModel } from "./anthropic";
 import type { AiConversationMessage } from "./conversations";
 import { retrieveGrounding } from "./knowledge-base";
+import { deleteQuestion } from "./questions";
 
 const SYSTEM_PROMPT = `You are an expert AI tutor for engineers preparing for the Claude Certified Architect – Foundations certification exam. Your purpose is to help users achieve outstanding exam scores through targeted coaching, gap analysis, and clear concept instruction.
 
@@ -33,7 +34,15 @@ You also understand six real-world exam scenarios: Customer Support Agent, Code 
 7. **Be honest.** If a score needs significant improvement, say so — then give a concrete plan.
 8. **Exam strategy.** Help users understand not just content but how to reason through exam questions under time pressure.
 
-Never fabricate scores, question content, or exam guide material. If a search returns nothing relevant, say so and offer to try a different query.`;
+Never fabricate scores, question content, or exam guide material. If a search returns nothing relevant, say so and offer to try a different query.
+
+## Challenging a question
+
+When a conversation starts with a full question record and a challenge request, you must:
+1. Search the knowledge base (\`search_knowledge_base\`) using the question text and domain to verify whether the question and its stated correct answer are accurate per the exam guide.
+2. Present your findings and a clear verdict: is the question accurate, inaccurate, or ambiguous?
+3. If you conclude the question should be removed, state this clearly — then ask the user explicitly: "Would you like me to delete this question from the question bank? Please reply with 'yes' to confirm."
+4. Only call \`delete_question\` after the user has given an unambiguous confirmation. Never call it preemptively or without a clear 'yes'.`;
 
 // ─── Tool definitions ─────────────────────────────────────────────────────────
 
@@ -84,9 +93,31 @@ const GET_ANALYTICS_TOOL: Anthropic.Tool = {
 	},
 };
 
+const DELETE_QUESTION_TOOL: Anthropic.Tool = {
+	name: "delete_question",
+	description:
+		"Soft-delete a question from the question bank. IMPORTANT: You MUST evaluate the question's accuracy using search_knowledge_base first, clearly state your verdict, and ask the user for explicit confirmation ('yes') BEFORE calling this tool. Never call it without unambiguous consent from the user.",
+	input_schema: {
+		type: "object" as const,
+		properties: {
+			question_id: {
+				type: "number",
+				description: "The numeric ID of the question to soft-delete.",
+			},
+			reason: {
+				type: "string",
+				description: "Brief explanation of why the question is being removed.",
+			},
+		},
+		required: ["question_id", "reason"],
+		additionalProperties: false,
+	},
+};
+
 export const AI_TUTOR_TOOLS: Anthropic.Tool[] = [
 	SEARCH_KNOWLEDGE_BASE_TOOL,
 	GET_ANALYTICS_TOOL,
+	DELETE_QUESTION_TOOL,
 ];
 
 // ─── Tool executors ───────────────────────────────────────────────────────────
@@ -154,6 +185,39 @@ function executeGetAnalytics(input: unknown): string {
 	}
 }
 
+interface DeleteQuestionInput {
+	question_id: number;
+	reason: string;
+}
+
+function isDeleteQuestionInput(v: unknown): v is DeleteQuestionInput {
+	return (
+		typeof v === "object" &&
+		v !== null &&
+		typeof (v as Record<string, unknown>).question_id === "number" &&
+		typeof (v as Record<string, unknown>).reason === "string"
+	);
+}
+
+function executeDeleteQuestion(input: unknown): string {
+	if (!isDeleteQuestionInput(input)) {
+		return JSON.stringify({
+			error: "Invalid tool input: question_id and reason are required.",
+		});
+	}
+	try {
+		deleteQuestion(input.question_id);
+		return JSON.stringify({
+			success: true,
+			message: `Question ${input.question_id} has been removed from the question bank.`,
+		});
+	} catch (err) {
+		return JSON.stringify({
+			error: err instanceof Error ? err.message : "Could not delete question.",
+		});
+	}
+}
+
 // ─── Message history reconstruction ──────────────────────────────────────────
 
 export function messagesToParams(
@@ -218,6 +282,8 @@ export async function runAgentLoop(
 					content = await executeSearchKnowledgeBase(block.input);
 				} else if (block.name === "get_analytics") {
 					content = executeGetAnalytics(block.input);
+				} else if (block.name === "delete_question") {
+					content = executeDeleteQuestion(block.input);
 				} else {
 					content = JSON.stringify({ error: `Unknown tool: ${block.name}` });
 				}

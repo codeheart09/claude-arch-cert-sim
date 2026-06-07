@@ -16,12 +16,15 @@ import {
 } from "@mantine/core";
 import {
 	IconArrowRight,
+	IconFlag,
 	IconPlayerPause,
 	IconPlayerPlay,
 	IconRefresh,
 } from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { fetchRandomQuestion, submitPracticeAnswer } from "@/app/actions";
+import { challengeQuestion } from "@/app/ai-tutor/actions";
 import { QuestionSkeleton } from "@/components/random-questions/question-skeleton";
 import type {
 	Alternative,
@@ -65,6 +68,7 @@ function choiceClassName(
 type Phase = "setup" | "active";
 
 export function TimedQuestions({ initialQuestion }: TimedQuestionsProps) {
+	const router = useRouter();
 	const [phase, setPhase] = useState<Phase>("setup");
 	const [limitMs, setLimitMs] = useState<number>(0);
 
@@ -83,6 +87,7 @@ export function TimedQuestions({ initialQuestion }: TimedQuestionsProps) {
 	const [result, setResult] = useState<AnswerResult | null>(null);
 	const [isLoading, startLoading] = useTransition();
 	const [isSubmitting, startSubmitting] = useTransition();
+	const [isChallenging, setIsChallenging] = useState(false);
 
 	// Timer state
 	const [elapsedMs, setElapsedMs] = useState(0);
@@ -337,6 +342,30 @@ export function TimedQuestions({ initialQuestion }: TimedQuestionsProps) {
 									<IconRefresh size={18} stroke={1.5} />
 								</ActionIcon>
 							</Tooltip>
+							{current ? (
+								<Tooltip label="Challenge this question" position="bottom">
+									<ActionIcon
+										variant="subtle"
+										color="orange"
+										size="lg"
+										radius="md"
+										aria-label="Challenge this question"
+										loading={isChallenging}
+										onClick={async () => {
+											if (!current) return;
+											setIsChallenging(true);
+											try {
+												const convId = await challengeQuestion(current.id);
+												router.push(`/ai-tutor?c=${convId}`);
+											} finally {
+												setIsChallenging(false);
+											}
+										}}
+									>
+										<IconFlag size={18} stroke={1.5} />
+									</ActionIcon>
+								</Tooltip>
+							) : null}
 						</div>
 					</div>
 

@@ -1,14 +1,28 @@
 import { readFileSync } from "node:fs";
 import { getClient } from "../db/drizzle";
 import {
+	getQuestionById,
 	type ImportResult,
 	importQuestion,
 	type QuestionInput,
+	softDeleteQuestion,
 } from "../db/questions";
+import type { Question } from "../db/schema";
 import { embedPassages } from "./embeddings";
 
 export type { QuestionInput } from "../db/questions";
 export { getQuestionCount } from "../db/questions";
+export type { Question } from "../db/schema";
+
+/** Fetches the full Question row including correctAlternative and insights. */
+export function getFullQuestion(id: number): Question | undefined {
+	return getQuestionById(id);
+}
+
+/** Soft-deletes a question by id. */
+export function deleteQuestion(id: number): void {
+	softDeleteQuestion(id);
+}
 
 export interface ImportSingleResult {
 	id: number;

@@ -1,0 +1,1 @@
+ALTER TABLE `questions` ADD `deleted` integer DEFAULT false NOT NULL;

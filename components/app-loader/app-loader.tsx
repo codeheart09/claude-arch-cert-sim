@@ -5,7 +5,7 @@ import { FullScreenLoader } from "@/components/full-screen-loader/full-screen-lo
 import classes from "./app-loader.module.css";
 
 /** How long the loader stays after the app is ready, before fading out. */
-const HOLD_MS = 1500;
+const HOLD_MS = 2500;
 /** Matches the fade transition duration in the CSS module (plus a margin). */
 const FADE_MS = 600;
 

@@ -33,6 +33,7 @@ import classes from "./ai-tutor-chat.module.css";
 
 interface Props {
 	initialConversations: AiConversation[];
+	initialActiveId?: number;
 }
 
 interface OptimisticMessage {
@@ -51,11 +52,11 @@ interface ErrorMessage {
 	createdAt: Date;
 }
 
-export function AiTutorChat({ initialConversations }: Props) {
+export function AiTutorChat({ initialConversations, initialActiveId }: Props) {
 	const [conversations, setConversations] =
 		useState<AiConversation[]>(initialConversations);
 	const [activeId, setActiveId] = useState<number | null>(
-		initialConversations[0]?.id ?? null,
+		initialActiveId ?? initialConversations[0]?.id ?? null,
 	);
 	const [messages, setMessages] = useState<
 		(AiConversationMessage | OptimisticMessage | ErrorMessage)[]
@@ -66,7 +67,112 @@ export function AiTutorChat({ initialConversations }: Props) {
 	const [, startTransition] = useTransition();
 	const messageListRef = useRef<HTMLDivElement>(null);
 
-	// Load messages when conversation changes
+	// Streams an AI response for a conversation whose user message is already persisted.
+	async function triggerAutoResponse(convId: number) {
+		setIsStreaming(true);
+		setStreamingText("");
+
+		function makeErrorMsg(content: string): ErrorMessage {
+			return {
+				id: Date.now(),
+				conversationId: convId,
+				role: "error",
+				content,
+				createdAt: new Date(),
+			};
+		}
+
+		try {
+			const res = await fetch("/api/ai-tutor/continue", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ conversationId: convId }),
+			});
+
+			if (!res.ok || !res.body) {
+				setMessages((prev) => [
+					...prev,
+					makeErrorMsg(`Request failed with status ${res.status}.`),
+				]);
+				setIsStreaming(false);
+				return;
+			}
+
+			const reader = res.body.getReader();
+			const decoder = new TextDecoder();
+			let fullText = "";
+			let buffer = "";
+			let streamDone = false;
+
+			while (!streamDone) {
+				const { done, value } = await reader.read();
+				if (done) break;
+				buffer += decoder.decode(value, { stream: true });
+				const lines = buffer.split("\n");
+				buffer = lines.pop() ?? "";
+
+				for (const line of lines) {
+					if (!line.startsWith("data: ")) continue;
+					const payload = line.slice(6).trim();
+
+					if (payload === "[DONE]") {
+						streamDone = true;
+						startTransition(async () => {
+							const fresh = await getConversationMessages(convId);
+							setMessages(fresh);
+						});
+						setStreamingText("");
+						setIsStreaming(false);
+						break;
+					}
+
+					try {
+						const data = JSON.parse(payload) as {
+							type: string;
+							delta?: string;
+							message?: string;
+						};
+						if (data.type === "text" && data.delta) {
+							fullText += data.delta;
+							setStreamingText(fullText);
+						} else if (data.type === "error") {
+							streamDone = true;
+							const errorMsg = makeErrorMsg(
+								data.message ?? "An unexpected error occurred.",
+							);
+							startTransition(async () => {
+								const fresh = await getConversationMessages(convId);
+								setMessages([...fresh, errorMsg]);
+							});
+							setStreamingText("");
+							setIsStreaming(false);
+							break;
+						}
+					} catch {
+						// Ignore malformed SSE lines
+					}
+				}
+			}
+
+			if (!streamDone) {
+				setIsStreaming(false);
+				setStreamingText("");
+				setMessages((prev) => [
+					...prev,
+					makeErrorMsg("The connection was interrupted. Please try again."),
+				]);
+			}
+		} catch (err) {
+			setIsStreaming(false);
+			setStreamingText("");
+			const message =
+				err instanceof Error ? err.message : "Failed to connect to the server.";
+			setMessages((prev) => [...prev, makeErrorMsg(message)]);
+		}
+	}
+
+	// Load messages when conversation changes; auto-trigger AI for challenge conversations
+	// biome-ignore lint/correctness/useExhaustiveDependencies: triggerAutoResponse is intentionally excluded — it only needs to fire on activeId change, and its state setter deps are stable
 	useEffect(() => {
 		if (activeId === null) {
 			setMessages([]);
@@ -75,6 +181,13 @@ export function AiTutorChat({ initialConversations }: Props) {
 		startTransition(async () => {
 			const msgs = await getConversationMessages(activeId);
 			setMessages(msgs);
+			if (
+				activeId === initialActiveId &&
+				msgs.length === 1 &&
+				msgs[0].role === "user"
+			) {
+				triggerAutoResponse(activeId);
+			}
 		});
 	}, [activeId]);
 

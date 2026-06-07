@@ -70,6 +70,7 @@ export const questions = sqliteTable("questions", {
 	source: text("source", { enum: ["authored", "generated"] })
 		.notNull()
 		.default("authored"),
+	deleted: integer("deleted", { mode: "boolean" }).notNull().default(false),
 	createdAt: integer("created_at", { mode: "timestamp" })
 		.notNull()
 		.default(sql`(unixepoch())`),

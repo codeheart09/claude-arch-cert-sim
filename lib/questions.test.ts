@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
 	embedPassages: vi.fn(),
 	importQuestion: vi.fn(),
+	getQuestionById: vi.fn(),
+	softDeleteQuestion: vi.fn(),
 	getClient: vi.fn().mockReturnValue({}),
 	readFileSync: vi.fn(),
 }));
@@ -13,6 +15,8 @@ vi.mock("./embeddings", () => ({
 
 vi.mock("../db/questions", () => ({
 	importQuestion: mocks.importQuestion,
+	getQuestionById: mocks.getQuestionById,
+	softDeleteQuestion: mocks.softDeleteQuestion,
 }));
 
 vi.mock("../db/drizzle", () => ({
@@ -172,5 +176,65 @@ describe("importQuestionsFromFile", () => {
 		const { importQuestionsFromFile } = await loadSubject();
 		const result = await importQuestionsFromFile("/data/questions.json");
 		expect(result).toEqual({ imported: 2, skipped: 1 });
+	});
+});
+
+const fakeQuestion = {
+	id: 42,
+	question: "Which approach best routes the agent's tool calls?",
+	difficulty: "medium" as const,
+	domain: "tool-design-mcp" as const,
+	scenario: "customer-support-agent" as const,
+	alternatives: JSON.stringify({ a: "Option A", b: "Option B" }),
+	correctAlternative: "b",
+	insights: JSON.stringify({ a: "Wrong A", b: "Right B" }),
+	contentHash: "abc123",
+	source: "authored" as const,
+	deleted: false,
+	createdAt: new Date(),
+};
+
+describe("getFullQuestion", () => {
+	beforeEach(() => {
+		vi.resetModules();
+		mocks.getQuestionById.mockReset();
+	});
+
+	it("delegates to getQuestionById with the given id", async () => {
+		mocks.getQuestionById.mockReturnValue(fakeQuestion);
+		const { getFullQuestion } = await loadSubject();
+		getFullQuestion(42);
+		expect(mocks.getQuestionById).toHaveBeenCalledWith(42);
+	});
+
+	it("returns the full Question row from the database", async () => {
+		mocks.getQuestionById.mockReturnValue(fakeQuestion);
+		const { getFullQuestion } = await loadSubject();
+		expect(getFullQuestion(42)).toBe(fakeQuestion);
+	});
+
+	it("returns undefined when the question does not exist", async () => {
+		mocks.getQuestionById.mockReturnValue(undefined);
+		const { getFullQuestion } = await loadSubject();
+		expect(getFullQuestion(99)).toBeUndefined();
+	});
+});
+
+describe("deleteQuestion", () => {
+	beforeEach(() => {
+		vi.resetModules();
+		mocks.softDeleteQuestion.mockReset();
+	});
+
+	it("delegates to softDeleteQuestion with the given id", async () => {
+		const { deleteQuestion } = await loadSubject();
+		deleteQuestion(42);
+		expect(mocks.softDeleteQuestion).toHaveBeenCalledWith(42);
+	});
+
+	it("calls softDeleteQuestion exactly once per invocation", async () => {
+		const { deleteQuestion } = await loadSubject();
+		deleteQuestion(7);
+		expect(mocks.softDeleteQuestion).toHaveBeenCalledOnce();
 	});
 });

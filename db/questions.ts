@@ -52,6 +52,7 @@ export function getQuestionCount(): number {
 	const row = getDb()
 		.select({ count: sql<number>`COUNT(*)` })
 		.from(questions)
+		.where(eq(questions.deleted, false))
 		.get();
 	return row?.count ?? 0;
 }
@@ -68,7 +69,13 @@ export function getQuestionsByDomainScenario(
 	return getDb()
 		.select()
 		.from(questions)
-		.where(and(eq(questions.domain, domain), eq(questions.scenario, scenario)))
+		.where(
+			and(
+				eq(questions.domain, domain),
+				eq(questions.scenario, scenario),
+				eq(questions.deleted, false),
+			),
+		)
 		.orderBy(sql`RANDOM()`)
 		.limit(limit)
 		.all();
@@ -86,6 +93,7 @@ export function getRandomQuestions(
 		return getDb()
 			.select()
 			.from(questions)
+			.where(eq(questions.deleted, false))
 			.orderBy(sql`RANDOM()`)
 			.limit(limit)
 			.all();
@@ -94,7 +102,12 @@ export function getRandomQuestions(
 	return getDb()
 		.select()
 		.from(questions)
-		.where(notInArray(questions.id, [...excludeIds]))
+		.where(
+			and(
+				notInArray(questions.id, [...excludeIds]),
+				eq(questions.deleted, false),
+			),
+		)
 		.orderBy(sql`RANDOM()`)
 		.limit(limit)
 		.all();
@@ -111,6 +124,7 @@ export function getRandomQuestion(
 		return getDb()
 			.select()
 			.from(questions)
+			.where(eq(questions.deleted, false))
 			.orderBy(sql`RANDOM()`)
 			.limit(1)
 			.get();
@@ -119,15 +133,24 @@ export function getRandomQuestion(
 	return getDb()
 		.select()
 		.from(questions)
-		.where(notInArray(questions.id, [...excludeIds]))
+		.where(
+			and(
+				notInArray(questions.id, [...excludeIds]),
+				eq(questions.deleted, false),
+			),
+		)
 		.orderBy(sql`RANDOM()`)
 		.limit(1)
 		.get();
 }
 
-/** Fetch one question by its id, or undefined if no such row exists. */
+/** Fetch one question by its id, or undefined if no such row exists or it is deleted. */
 export function getQuestionById(id: number): Question | undefined {
-	return getDb().select().from(questions).where(eq(questions.id, id)).get();
+	return getDb()
+		.select()
+		.from(questions)
+		.where(and(eq(questions.id, id), eq(questions.deleted, false)))
+		.get();
 }
 
 export function findByContentHash(
@@ -135,7 +158,7 @@ export function findByContentHash(
 	hash: string,
 ): { id: number } | undefined {
 	return db
-		.prepare("SELECT id FROM questions WHERE content_hash = ?")
+		.prepare("SELECT id FROM questions WHERE content_hash = ? AND deleted = 0")
 		.get(hash) as { id: number } | undefined;
 }
 
@@ -177,6 +200,7 @@ export function findNearestQuestions(
 			SELECT questions.id, questions.question, knn.distance
 			FROM knn
 			JOIN questions ON questions.id = knn.rowid
+			WHERE questions.deleted = 0
 			ORDER BY knn.distance
 		`)
 		.all(vector, limit) as NearestRow[];
@@ -194,7 +218,7 @@ export function findByDomainScenario(
 ): { question: string }[] {
 	return db
 		.prepare(
-			"SELECT question FROM questions WHERE domain = ? AND scenario = ? ORDER BY created_at DESC LIMIT ?",
+			"SELECT question FROM questions WHERE domain = ? AND scenario = ? AND deleted = 0 ORDER BY created_at DESC LIMIT ?",
 		)
 		.all(domain, scenario, limit) as { question: string }[];
 }
@@ -236,6 +260,15 @@ export function insertQuestionVector(
 		BigInt(rowid),
 		vector,
 	);
+}
+
+/** Marks a question as deleted without removing the row. */
+export function softDeleteQuestion(id: number): void {
+	getDb()
+		.update(questions)
+		.set({ deleted: true })
+		.where(eq(questions.id, id))
+		.run();
 }
 
 /**

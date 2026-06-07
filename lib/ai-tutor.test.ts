@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
 	getDefaultModel: vi.fn().mockReturnValue("claude-sonnet-4-6"),
 	retrieveGrounding: vi.fn(),
 	getAnalyticsData: vi.fn(),
+	deleteQuestion: vi.fn(),
 }));
 
 vi.mock("./anthropic", () => ({
@@ -18,6 +19,10 @@ vi.mock("./knowledge-base", () => ({
 
 vi.mock("./analytics", () => ({
 	getAnalyticsData: mocks.getAnalyticsData,
+}));
+
+vi.mock("./questions", () => ({
+	deleteQuestion: mocks.deleteQuestion,
 }));
 
 type TextCallback = (delta: string) => void;
@@ -366,5 +371,121 @@ describe("runAgentLoop — unknown tool", () => {
 		const toolResult = toolResultMessage.content[0];
 		const parsed = JSON.parse(toolResult.content as string);
 		expect(parsed.error).toMatch(/unknown tool/i);
+	});
+});
+
+describe("runAgentLoop — delete_question tool", () => {
+	beforeEach(() => {
+		vi.resetModules();
+		for (const mock of Object.values(mocks)) {
+			if (typeof mock.mockReset === "function") mock.mockReset();
+		}
+		mocks.getDefaultModel.mockReturnValue("claude-sonnet-4-6");
+	});
+
+	it("calls deleteQuestion with the given question_id and returns a success result", async () => {
+		const toolUseBlock = {
+			type: "tool_use",
+			id: "tool-3",
+			name: "delete_question",
+			input: { question_id: 42, reason: "Incorrect answer key" },
+		};
+		const firstStream = makeStream([], [toolUseBlock], "tool_use");
+		const secondStream = makeStream(["Done."], [], "end_turn");
+
+		let streamCall = 0;
+		const mockClient = {
+			messages: {
+				stream: vi.fn().mockImplementation(() => {
+					streamCall++;
+					return streamCall === 1 ? firstStream : secondStream;
+				}),
+			},
+		};
+		mocks.getAnthropic.mockReturnValue(mockClient);
+		mocks.deleteQuestion.mockReturnValue(undefined);
+
+		const { runAgentLoop } = await loadSubject();
+		await runAgentLoop([], () => {});
+
+		expect(mocks.deleteQuestion).toHaveBeenCalledWith(42);
+
+		const secondCallMessages =
+			mockClient.messages.stream.mock.calls[1][0].messages;
+		const toolResultMessage = secondCallMessages.at(-1);
+		const toolResult = toolResultMessage.content[0];
+		const parsed = JSON.parse(toolResult.content as string);
+		expect(parsed.success).toBe(true);
+		expect(parsed.message).toMatch(/42/);
+	});
+
+	it("returns an error result when question_id is missing from the input", async () => {
+		const toolUseBlock = {
+			type: "tool_use",
+			id: "tool-3",
+			name: "delete_question",
+			input: { reason: "No id provided" },
+		};
+		const firstStream = makeStream([], [toolUseBlock], "tool_use");
+		const secondStream = makeStream(["ok"], [], "end_turn");
+
+		let streamCall = 0;
+		const mockClient = {
+			messages: {
+				stream: vi.fn().mockImplementation(() => {
+					streamCall++;
+					return streamCall === 1 ? firstStream : secondStream;
+				}),
+			},
+		};
+		mocks.getAnthropic.mockReturnValue(mockClient);
+
+		const { runAgentLoop } = await loadSubject();
+		await runAgentLoop([], () => {});
+
+		expect(mocks.deleteQuestion).not.toHaveBeenCalled();
+
+		const secondCallMessages =
+			mockClient.messages.stream.mock.calls[1][0].messages;
+		const toolResultMessage = secondCallMessages.at(-1);
+		const toolResult = toolResultMessage.content[0];
+		const parsed = JSON.parse(toolResult.content as string);
+		expect(parsed).toHaveProperty("error");
+	});
+
+	it("returns an error result when deleteQuestion throws", async () => {
+		const toolUseBlock = {
+			type: "tool_use",
+			id: "tool-3",
+			name: "delete_question",
+			input: { question_id: 99, reason: "Bad question" },
+		};
+		const firstStream = makeStream([], [toolUseBlock], "tool_use");
+		const secondStream = makeStream(["ok"], [], "end_turn");
+
+		let streamCall = 0;
+		const mockClient = {
+			messages: {
+				stream: vi.fn().mockImplementation(() => {
+					streamCall++;
+					return streamCall === 1 ? firstStream : secondStream;
+				}),
+			},
+		};
+		mocks.getAnthropic.mockReturnValue(mockClient);
+		mocks.deleteQuestion.mockImplementation(() => {
+			throw new Error("DB write failed");
+		});
+
+		const { runAgentLoop } = await loadSubject();
+		await runAgentLoop([], () => {});
+
+		const secondCallMessages =
+			mockClient.messages.stream.mock.calls[1][0].messages;
+		const toolResultMessage = secondCallMessages.at(-1);
+		const toolResult = toolResultMessage.content[0];
+		const parsed = JSON.parse(toolResult.content as string);
+		expect(parsed).toHaveProperty("error");
+		expect(parsed.error).toMatch(/DB write failed/);
 	});
 });

@@ -1,6 +1,7 @@
 "use client";
 
 import {
+	ActionIcon,
 	Alert,
 	Button,
 	Container,
@@ -10,10 +11,13 @@ import {
 	Stack,
 	Text,
 	Title,
+	Tooltip,
 } from "@mantine/core";
-import { IconArrowRight } from "@tabler/icons-react";
+import { IconArrowRight, IconFlag } from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { fetchRandomQuestion, submitPracticeAnswer } from "@/app/actions";
+import { challengeQuestion } from "@/app/ai-tutor/actions";
 import type {
 	Alternative,
 	AnswerResult,
@@ -44,6 +48,7 @@ function choiceClassName(
 }
 
 export function RandomQuestions({ initialQuestion }: RandomQuestionsProps) {
+	const router = useRouter();
 	const [current, setCurrent] = useState(initialQuestion);
 	const [servedIds, setServedIds] = useState<number[]>(
 		initialQuestion ? [initialQuestion.id] : [],
@@ -52,6 +57,7 @@ export function RandomQuestions({ initialQuestion }: RandomQuestionsProps) {
 	const [result, setResult] = useState<AnswerResult | null>(null);
 	const [isLoading, startLoading] = useTransition();
 	const [isSubmitting, startSubmitting] = useTransition();
+	const [isChallenging, setIsChallenging] = useState(false);
 
 	const submitted = result !== null;
 
@@ -138,20 +144,44 @@ export function RandomQuestions({ initialQuestion }: RandomQuestionsProps) {
 								) : null}
 
 								<Group justify="space-between">
-									<Button
-										onClick={handleSubmit}
-										disabled={!selected || submitted}
-										loading={isSubmitting}
-									>
-										Submit
-									</Button>
-									<Button
-										variant="default"
-										onClick={handleNext}
-										rightSection={<IconArrowRight size={18} stroke={1.7} />}
-									>
-										Next
-									</Button>
+									<Group>
+										<Button
+											onClick={handleSubmit}
+											disabled={!selected || submitted}
+											loading={isSubmitting}
+										>
+											Submit
+										</Button>
+										<Button
+											variant="default"
+											onClick={handleNext}
+											rightSection={<IconArrowRight size={18} stroke={1.7} />}
+										>
+											Next
+										</Button>
+									</Group>
+									<Tooltip label="Challenge this question" position="bottom">
+										<ActionIcon
+											variant="subtle"
+											color="orange"
+											size="lg"
+											radius="md"
+											aria-label="Challenge this question"
+											loading={isChallenging}
+											onClick={async () => {
+												if (!current) return;
+												setIsChallenging(true);
+												try {
+													const convId = await challengeQuestion(current.id);
+													router.push(`/ai-tutor?c=${convId}`);
+												} finally {
+													setIsChallenging(false);
+												}
+											}}
+										>
+											<IconFlag size={18} stroke={1.5} />
+										</ActionIcon>
+									</Tooltip>
 								</Group>
 							</Stack>
 						</Paper>
