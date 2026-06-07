@@ -2,6 +2,7 @@
 
 import {
 	ActionIcon,
+	Alert,
 	Paper,
 	Select,
 	Text,
@@ -9,6 +10,7 @@ import {
 	Tooltip,
 } from "@mantine/core";
 import {
+	IconAlertCircle,
 	IconPlus,
 	IconRobot,
 	IconSend,
@@ -41,6 +43,14 @@ interface OptimisticMessage {
 	createdAt: Date;
 }
 
+interface ErrorMessage {
+	id: number;
+	conversationId: number;
+	role: "error";
+	content: string;
+	createdAt: Date;
+}
+
 export function AiTutorChat({ initialConversations }: Props) {
 	const [conversations, setConversations] =
 		useState<AiConversation[]>(initialConversations);
@@ -48,7 +58,7 @@ export function AiTutorChat({ initialConversations }: Props) {
 		initialConversations[0]?.id ?? null,
 	);
 	const [messages, setMessages] = useState<
-		(AiConversationMessage | OptimisticMessage)[]
+		(AiConversationMessage | OptimisticMessage | ErrorMessage)[]
 	>([]);
 	const [streamingText, setStreamingText] = useState("");
 	const [isStreaming, setIsStreaming] = useState(false);
@@ -106,6 +116,7 @@ export function AiTutorChat({ initialConversations }: Props) {
 		if (!input.trim() || activeId === null || isStreaming) return;
 
 		const userText = input.trim();
+		const convId = activeId;
 		setInput("");
 		setIsStreaming(true);
 		setStreamingText("");
@@ -113,39 +124,57 @@ export function AiTutorChat({ initialConversations }: Props) {
 		const optimisticId = Date.now();
 		const optimisticMsg: OptimisticMessage = {
 			id: optimisticId,
-			conversationId: activeId,
+			conversationId: convId,
 			role: "user",
 			content: userText,
 			createdAt: new Date(),
 		};
 		setMessages((prev) => [...prev, optimisticMsg]);
 
+		function makeErrorMsg(content: string): ErrorMessage {
+			return {
+				id: Date.now(),
+				conversationId: convId,
+				role: "error",
+				content,
+				createdAt: new Date(),
+			};
+		}
+
 		try {
 			const res = await fetch("/api/ai-tutor", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
-					conversationId: activeId,
+					conversationId: convId,
 					userMessage: userText,
 				}),
 			});
 
 			if (!res.ok || !res.body) {
-				throw new Error(`Request failed: ${res.status}`);
+				const text = await res.text().catch(() => "");
+				setMessages((prev) => [
+					...prev.filter((m) => m.id !== optimisticId),
+					makeErrorMsg(
+						text.trim() || `Request failed with status ${res.status}.`,
+					),
+				]);
+				setIsStreaming(false);
+				return;
 			}
 
 			const reader = res.body.getReader();
 			const decoder = new TextDecoder();
 			let fullText = "";
 			let buffer = "";
+			let streamDone = false;
 
-			while (true) {
+			while (!streamDone) {
 				const { done, value } = await reader.read();
 				if (done) break;
 
 				buffer += decoder.decode(value, { stream: true });
 				const lines = buffer.split("\n");
-				// Keep the last (potentially incomplete) line in buffer
 				buffer = lines.pop() ?? "";
 
 				for (const line of lines) {
@@ -153,14 +182,13 @@ export function AiTutorChat({ initialConversations }: Props) {
 					const payload = line.slice(6).trim();
 
 					if (payload === "[DONE]") {
-						// Reload from DB to get canonical message IDs
+						streamDone = true;
 						startTransition(async () => {
-							const fresh = await getConversationMessages(activeId);
+							const fresh = await getConversationMessages(convId);
 							setMessages(fresh);
-							// Update conversation title in selector
 							setConversations((prev) =>
 								prev.map((c) =>
-									c.id === activeId
+									c.id === convId
 										? {
 												...c,
 												title: userText.slice(0, 60).trim() || "Conversation",
@@ -183,17 +211,53 @@ export function AiTutorChat({ initialConversations }: Props) {
 						if (data.type === "text" && data.delta) {
 							fullText += data.delta;
 							setStreamingText(fullText);
+						} else if (data.type === "error") {
+							streamDone = true;
+							const errorMsg = makeErrorMsg(
+								data.message ?? "An unexpected error occurred.",
+							);
+							startTransition(async () => {
+								const fresh = await getConversationMessages(convId);
+								setMessages([...fresh, errorMsg]);
+							});
+							setStreamingText("");
+							setIsStreaming(false);
+							break;
 						}
 					} catch {
 						// Ignore malformed SSE lines
 					}
 				}
 			}
-		} catch {
+
+			if (!streamDone) {
+				// Stream closed without a completion or error event
+				setIsStreaming(false);
+				setStreamingText("");
+				const errorMsg = makeErrorMsg(
+					"The connection was interrupted. Please try again.",
+				);
+				if (fullText) {
+					startTransition(async () => {
+						const fresh = await getConversationMessages(convId);
+						setMessages([...fresh, errorMsg]);
+					});
+				} else {
+					setMessages((prev) => [
+						...prev.filter((m) => m.id !== optimisticId),
+						errorMsg,
+					]);
+				}
+			}
+		} catch (err) {
 			setIsStreaming(false);
 			setStreamingText("");
-			// Remove optimistic message on error
-			setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
+			const message =
+				err instanceof Error ? err.message : "Failed to connect to the server.";
+			setMessages((prev) => [
+				...prev.filter((m) => m.id !== optimisticId),
+				makeErrorMsg(message),
+			]);
 		}
 	}
 
@@ -266,39 +330,55 @@ export function AiTutorChat({ initialConversations }: Props) {
 						</div>
 					)}
 
-					{messages.map((msg) => (
-						<div
-							key={msg.id}
-							className={`${classes.bubble} ${
-								msg.role === "user"
-									? classes.bubbleUser
-									: classes.bubbleAssistant
-							}`}
-						>
-							<div className={classes.bubbleIcon}>
-								{msg.role === "user" ? (
-									<IconUser size={14} />
-								) : (
-									<IconRobot size={14} />
-								)}
-							</div>
-							<Paper
-								className={classes.bubbleContent}
-								radius="md"
-								shadow="none"
+					{messages.map((msg) => {
+						if (msg.role === "error") {
+							return (
+								<Alert
+									key={msg.id}
+									icon={<IconAlertCircle size={16} />}
+									color="red"
+									variant="light"
+									className={classes.errorMessage}
+								>
+									{msg.content}
+								</Alert>
+							);
+						}
+
+						return (
+							<div
+								key={msg.id}
+								className={`${classes.bubble} ${
+									msg.role === "user"
+										? classes.bubbleUser
+										: classes.bubbleAssistant
+								}`}
 							>
-								{msg.role === "assistant" ? (
-									<div className={classes.markdown}>
-										<Markdown remarkPlugins={[remarkGfm]}>
-											{msg.content}
-										</Markdown>
-									</div>
-								) : (
-									<Text className={classes.bubbleText}>{msg.content}</Text>
-								)}
-							</Paper>
-						</div>
-					))}
+								<div className={classes.bubbleIcon}>
+									{msg.role === "user" ? (
+										<IconUser size={14} />
+									) : (
+										<IconRobot size={14} />
+									)}
+								</div>
+								<Paper
+									className={classes.bubbleContent}
+									radius="md"
+									shadow="none"
+								>
+									{msg.role === "assistant" ? (
+										<div className={classes.markdown}>
+											<Markdown remarkPlugins={[remarkGfm]}>
+												{msg.content}
+											</Markdown>
+										</div>
+									) : (
+										<Text className={classes.bubbleText}>{msg.content}</Text>
+									)}
+								</Paper>
+							</div>
+						);
+					})}
 
 					{/* Live streaming bubble */}
 					{isStreaming && (
@@ -311,12 +391,26 @@ export function AiTutorChat({ initialConversations }: Props) {
 								radius="md"
 								shadow="none"
 							>
-								<div className={classes.markdown}>
-									<Markdown remarkPlugins={[remarkGfm]}>
-										{streamingText || " "}
-									</Markdown>
-								</div>
-								<span className={classes.cursor} aria-hidden="true" />
+								{streamingText ? (
+									<>
+										<div className={classes.markdown}>
+											<Markdown remarkPlugins={[remarkGfm]}>
+												{streamingText}
+											</Markdown>
+										</div>
+										<span className={classes.cursor} aria-hidden="true" />
+									</>
+								) : (
+									<div
+										className={classes.typingIndicator}
+										role="status"
+										aria-label="Thinking…"
+									>
+										<span className={classes.typingDot} />
+										<span className={classes.typingDot} />
+										<span className={classes.typingDot} />
+									</div>
+								)}
 							</Paper>
 						</div>
 					)}
