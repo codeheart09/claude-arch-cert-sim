@@ -15,6 +15,13 @@
 			"when": 1780785046701,
 			"tag": "0001_same_calypso",
 			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "6",
+			"when": 1780791454092,
+			"tag": "0002_striped_prodigy",
+			"breakpoints": true
 		}
 	]
 }

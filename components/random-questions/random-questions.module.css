@@ -1,0 +1,70 @@
+.page {
+	min-height: 100dvh;
+	display: flex;
+	justify-content: center;
+	padding-block: var(--mantine-spacing-md);
+	padding-inline: var(--mantine-spacing-xl);
+	padding-top: calc(var(--mantine-spacing-xl) * 3);
+}
+
+.inner {
+	width: 100%;
+}
+
+.card {
+	width: 100%;
+	padding: var(--mantine-spacing-lg);
+	border: 1px solid var(--surface-highlight-border);
+	background: var(--surface-highlight);
+	box-shadow: var(--mantine-shadow-sm);
+}
+
+.question {
+	font-size: var(--mantine-font-size-lg);
+	line-height: var(--mantine-line-height-md);
+	font-weight: 600;
+}
+
+.choice {
+	padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+	border: 1px solid var(--surface-highlight-border);
+	border-radius: var(--mantine-radius-md);
+	transition:
+		background-color 120ms ease,
+		border-color 120ms ease;
+}
+
+.choice:hover {
+	border-color: var(--mantine-primary-color-filled);
+}
+
+.choiceSelected {
+	border-color: var(--mantine-primary-color-filled);
+	background: var(--mantine-primary-color-light);
+}
+
+.choiceCorrect {
+	border-color: var(--mantine-color-green-filled);
+	background: var(--mantine-color-green-light);
+}
+
+.choiceIncorrect {
+	border-color: var(--mantine-color-red-filled);
+	background: var(--mantine-color-red-light);
+}
+
+.choiceLabel {
+	font-size: var(--mantine-font-size-md);
+	line-height: var(--mantine-line-height-sm);
+}
+
+@media (max-width: 48em) {
+	.page {
+		padding-inline: var(--mantine-spacing-md);
+		padding-top: calc(var(--mantine-spacing-xl) * 2.5);
+	}
+
+	.card {
+		padding: var(--mantine-spacing-md);
+	}
+}

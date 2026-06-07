@@ -1,6 +1,15 @@
 import { createHash } from "node:crypto";
 import type Database from "better-sqlite3";
-import type { Alternative, Difficulty, Domain, Scenario } from "./schema";
+import { eq, notInArray, sql } from "drizzle-orm";
+import { getDb } from "./drizzle";
+import {
+	type Alternative,
+	type Difficulty,
+	type Domain,
+	type Question,
+	questions,
+	type Scenario,
+} from "./schema";
 
 /**
  * A candidate whose nearest existing neighbour sits below this vector distance is
@@ -38,6 +47,36 @@ export function hashQuestion(question: string): string {
 }
 
 // ─── Lookups ──────────────────────────────────────────────────────────────────
+
+/**
+ * A single uniformly-random question, optionally excluding already-served ids.
+ * Returns undefined when the bank is empty or every row has been excluded.
+ */
+export function getRandomQuestion(
+	excludeIds: readonly number[] = [],
+): Question | undefined {
+	if (excludeIds.length === 0) {
+		return getDb()
+			.select()
+			.from(questions)
+			.orderBy(sql`RANDOM()`)
+			.limit(1)
+			.get();
+	}
+
+	return getDb()
+		.select()
+		.from(questions)
+		.where(notInArray(questions.id, excludeIds))
+		.orderBy(sql`RANDOM()`)
+		.limit(1)
+		.get();
+}
+
+/** Fetch one question by its id, or undefined if no such row exists. */
+export function getQuestionById(id: number): Question | undefined {
+	return getDb().select().from(questions).where(eq(questions.id, id)).get();
+}
 
 export function findByContentHash(
 	db: Database.Database,

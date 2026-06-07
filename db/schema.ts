@@ -77,3 +77,25 @@ export const questions = sqliteTable("questions", {
 
 export type Question = typeof questions.$inferSelect;
 export type NewQuestion = typeof questions.$inferInsert;
+
+/**
+ * A submitted answer in the Random Questions practice mode. One row per Submit.
+ * `selectedAlternative` is the chosen option's letter; `isCorrect` is a real
+ * boolean (stored 0/1). The FK to `questions` enables quick joins for analytics.
+ */
+export const answers = sqliteTable("answers", {
+	id: integer("id").primaryKey({ autoIncrement: true }),
+	questionId: integer("question_id")
+		.notNull()
+		.references(() => questions.id),
+	selectedAlternative: text("selected_alternative", {
+		enum: ALTERNATIVE_ENUM,
+	}).notNull(),
+	isCorrect: integer("is_correct", { mode: "boolean" }).notNull(),
+	createdAt: integer("created_at", { mode: "timestamp" })
+		.notNull()
+		.default(sql`(unixepoch())`),
+});
+
+export type Answer = typeof answers.$inferSelect;
+export type NewAnswer = typeof answers.$inferInsert;
