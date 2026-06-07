@@ -16,7 +16,8 @@
 			"b": "Incorrect. Prompt instructions rely on LLM compliance, which is probabilistic. At 12% skip rate, the system prompt is already failing — reiterating the rule won't provide the reliability needed for financial operations.",
 			"c": "Incorrect. Few-shot examples improve average adherence statistically but still cannot guarantee the sequence. The 12% failure rate can persist even with exemplars present.",
 			"d": "Incorrect. A routing classifier controls which tools are available for a request type, not the order in which they must be called. It doesn't solve the sequencing problem."
-		}
+		},
+		"skipped": true
 	},
 	{
 		"question": "Production logs show the agent frequently calls `get_customer` when users ask about orders (e.g., 'check my order #12345'), instead of calling `lookup_order`. Both tools have minimal descriptions ('Retrieves customer information' / 'Retrieves order details') and accept similar identifier formats. What's the most effective first step to improve tool selection reliability?",
@@ -35,7 +36,8 @@
 			"b": "Correct. Tool descriptions are the primary mechanism LLMs use for tool selection. Minimal descriptions leave the model without context to distinguish similar tools. Expanding them with input formats, example queries, and explicit boundaries directly addresses the root cause with minimal effort.",
 			"c": "Incorrect. A routing layer is over-engineered for what is fundamentally a description quality problem. It bypasses the LLM's natural language understanding rather than improving it.",
 			"d": "Incorrect. Consolidating tools is a valid architectural refactor but is higher effort than warranted as a 'first step.' It also hides the distinction rather than teaching the model to make it."
-		}
+		},
+		"skipped": true
 	},
 	{
 		"question": "Your agent achieves 55% first-contact resolution, well below the 80% target. Logs show it escalates straightforward cases (standard damage replacements with photo evidence) while attempting to autonomously handle complex situations requiring policy exceptions. What's the most effective way to improve escalation calibration?",
@@ -54,7 +56,8 @@
 			"b": "Incorrect. LLM self-reported confidence is poorly calibrated. The agent is already incorrectly confident on complex cases, so a threshold based on self-reported confidence won't fix the underlying issue.",
 			"c": "Incorrect. A separate classifier requires labeled historical data and ML infrastructure. This is over-engineered when the simpler fix of prompt optimization hasn't been tried first.",
 			"d": "Incorrect. Sentiment doesn't correlate with case complexity. A customer can be calm about a complex policy exception and frustrated about a simple replacement. This solves a different problem entirely."
-		}
+		},
+		"skipped": true
 	},
 	{
 		"question": "You want to create a custom /review slash command that runs your team's standard code review checklist. This command should be available to every developer when they clone or pull the repository. Where should you create this command file?",
@@ -73,7 +76,8 @@
 			"b": "Incorrect. ~/.claude/commands/ stores personal commands in the user's home directory. These are not shared via version control and must be created individually by each developer.",
 			"c": "Incorrect. CLAUDE.md is for project instructions and persistent context, not command definitions. Commands placed there are not executable as slash commands.",
 			"d": "Incorrect. There is no .claude/config.json commands array mechanism in Claude Code. This configuration path does not exist."
-		}
+		},
+		"skipped": true
 	},
 	{
 		"question": "You've been assigned to restructure the team's monolithic application into microservices. This will involve changes across dozens of files and requires decisions about service boundaries and module dependencies. Which approach should you take?",
@@ -92,7 +96,8 @@
 			"b": "Incorrect. Incremental execution without upfront design risks discovering cross-service dependencies late, leading to costly rework or refactoring cycles.",
 			"c": "Incorrect. Comprehensive upfront instructions assume you already know the correct structure without exploring the codebase. The whole value of plan mode is enabling that exploration first.",
 			"d": "Incorrect. The complexity is already stated in the requirements (dozens of files, architectural decisions). There is no reason to wait for complexity to emerge when it is already known."
-		}
+		},
+		"skipped": true
 	},
 	{
 		"question": "Your codebase has distinct areas with different coding conventions: React components use functional style with hooks, API handlers use async/await with specific error handling, and database models follow a repository pattern. Test files are spread throughout the codebase alongside the code they test (e.g., Button.test.tsx next to Button.tsx), and you want all tests to follow the same conventions regardless of location. What's the most maintainable way to ensure Claude automatically applies the correct conventions when generating code?",
@@ -111,7 +116,8 @@
 			"b": "Incorrect. Relying on Claude to infer which section applies is non-deterministic. The model may apply the wrong conventions or miss them entirely, especially for files in unexpected locations.",
 			"c": "Incorrect. Skills require manual invocation or Claude choosing to load them. They don't provide the deterministic, path-triggered application that the requirement calls for.",
 			"d": "Incorrect. Directory-bound CLAUDE.md files cannot handle conventions for files spread across many subdirectories — test files living next to their source files span the entire project tree."
-		}
+		},
+		"skipped": true
 	},
 	{
 		"question": "After running the system on the topic 'impact of AI on creative industries,' you observe that each subagent completes successfully: the web search agent finds relevant articles, the document analysis agent summarizes papers correctly, and the synthesis agent produces coherent output. However, the final reports cover only visual arts, completely missing music, writing, and film production. When you examine the coordinator's logs, you see it decomposed the topic into three subtasks: 'AI in digital art creation,' 'AI in graphic design,' and 'AI in photography.' What is the most likely root cause?",
@@ -130,7 +136,8 @@
 			"b": "Correct. The coordinator's own logs reveal the root cause: it decomposed 'creative industries' into only visual arts subtasks. Music, writing, and film were never assigned to any subagent — so no agent had a chance to cover them.",
 			"c": "Incorrect. The web search agent executed its assigned queries correctly. The problem is what queries it was asked to run, which is determined by the coordinator's decomposition.",
 			"d": "Incorrect. The document analysis agent worked correctly within its assigned scope. There is no evidence of filtering — it simply never received non-visual-arts sources to analyze."
-		}
+		},
+		"skipped": true
 	},
 	{
 		"question": "The web search subagent times out while researching a complex topic. You need to design how this failure information flows back to the coordinator agent. Which error propagation approach best enables intelligent recovery?",
@@ -149,7 +156,8 @@
 			"b": "Incorrect. A generic 'search unavailable' status hides the valuable context (failure type, attempted query, partial results) that the coordinator needs to decide how to recover. Retry policy is also better owned by the coordinator.",
 			"c": "Incorrect. Marking a failure as success suppresses the error entirely, preventing any recovery. The coordinator believes the research succeeded and may produce incomplete outputs with no indication something went wrong.",
 			"d": "Incorrect. Terminating the entire workflow on a single subagent timeout is disproportionate. Recovery strategies — retrying, modifying the query, using an alternative source — could succeed without abandoning all prior work."
-		}
+		},
+		"skipped": true
 	},
 	{
 		"question": "During testing, you observe that the synthesis agent frequently needs to verify specific claims while combining findings. Currently, when verification is needed, the synthesis agent returns control to the coordinator, which invokes the web search agent, then re-invokes synthesis with results. This adds 2–3 round trips per task and increases latency by 40%. Your evaluation shows that 85% of these verifications are simple fact-checks (dates, names, statistics) while 15% require deeper investigation. What's the most effective approach to reduce overhead while maintaining system reliability?",
@@ -168,7 +176,8 @@
 			"b": "Incorrect. Batching verification needs creates blocking dependencies: later synthesis steps may depend on facts that haven't been verified yet within the same pass. Batching forces an artificial wait that may be worse than the current latency.",
 			"c": "Incorrect. Giving the synthesis agent all web search tools over-provisions it and violates separation of concerns. It could now perform deep research tasks that belong to the web search agent, making the architecture harder to reason about and maintain.",
 			"d": "Incorrect. Speculative caching cannot reliably predict which specific claims the synthesis agent will need to verify later. This approach would cache large amounts of irrelevant data and still miss needed verifications."
-		}
+		},
+		"skipped": true
 	},
 	{
 		"question": "Your pipeline script runs `claude \"Analyze this pull request for security issues\"` but the job hangs indefinitely. Logs indicate Claude Code is waiting for interactive input. What's the correct approach to run Claude Code in an automated pipeline?",
@@ -187,7 +196,8 @@
 			"b": "Incorrect. CLAUDE_HEADLESS is not a real environment variable in Claude Code. Setting it has no effect.",
 			"c": "Incorrect. Redirecting stdin from /dev/null is a Unix workaround that doesn't address Claude Code's command syntax for non-interactive mode. The correct mechanism is the -p flag.",
 			"d": "Incorrect. There is no --batch flag in Claude Code. This option does not exist."
-		}
+		},
+		"skipped": true
 	},
 	{
 		"question": "Your team wants to reduce API costs for automated analysis. Currently, real-time Claude calls power two workflows: (1) a blocking pre-merge check that must complete before developers can merge, and (2) a technical debt report generated overnight for review the next morning. Your manager proposes switching both to the Message Batches API for its 50% cost savings. How should you evaluate this proposal?",
@@ -206,7 +216,8 @@
 			"b": "Incorrect. Status polling doesn't change the underlying constraint: the batch API has no guaranteed latency SLA and can take hours. Polling a blocking pre-merge check until it eventually completes still leaves developers waiting an unacceptable amount of time.",
 			"c": "Incorrect. This is based on a misconception. Batch results can be correlated to their original requests using custom_id fields, so ordering is not an issue.",
 			"d": "Incorrect. A timeout fallback to real-time adds unnecessary complexity. The simpler and correct solution is to match each API to its appropriate use case based on latency requirements."
-		}
+		},
+		"skipped": true
 	},
 	{
 		"question": "A pull request modifies 14 files across the stock tracking module. Your single-pass review analyzing all files together produces inconsistent results: detailed feedback for some files but superficial comments for others, obvious bugs missed, and contradictory feedback — flagging a pattern as problematic in one file while approving identical code elsewhere in the same PR. How should you restructure the review?",
@@ -225,7 +236,8 @@
 			"b": "Incorrect. Requiring smaller PRs shifts the burden entirely to developers without improving the review system itself. It also doesn't fix the underlying attention issue for any PR that genuinely requires multiple files.",
 			"c": "Incorrect. A larger context window doesn't solve attention quality degradation. The model can technically 'see' more tokens, but its ability to maintain consistent analytical depth across many files is the limiting factor, not context length.",
 			"d": "Incorrect. Requiring consensus across three passes would actually suppress detection of real bugs. Issues caught intermittently — perhaps due to attention variation — are still real issues, not false positives to be filtered out."
-		}
+		},
+		"skipped": true
 	},
 	{
 		"question": "Your customer support agent handles multi-concern tickets — for example, a customer who has both a billing dispute and a missing item from the same order. Logs show the agent addresses only the first issue it detects, then closes the ticket, leaving the second concern unresolved. A second contact rate of 28% is traced directly to this behavior. What architectural change would most effectively fix this?",
@@ -779,7 +791,7 @@
 		}
 	},
 	{
-		"question": "Your team has integrated Claude Code into the CI pipeline to run automated code reviews on every pull request. The review findings are posted as structured inline PR comments. The pipeline currently uses this invocation:\n\n```\nclaude --print \"Review this PR for security and correctness issues\" \\\n  --output-format json \\\n  --json-schema ./review-schema.json\n```\n\nA senior engineer proposes that review quality would improve significantly if the same Claude Code session that generated the PR's code changes also performed the code review—this way the model already has full context of every design decision made during implementation. Should you adopt this approach?\n\n- A) Yes, adopt it. The shared session context gives the reviewer access to implementation intent, enabling it to flag deeper logical issues that a context-free reviewer would miss.\n- B) No. Instead, pass the implementation session's full conversation transcript as a file input so an independent review instance can reference the design decisions without sharing session state.\n- C) No. The same session that generated the code is less effective as a reviewer because it tends to rationalize its own choices rather than critically evaluate them; a separate, independent Claude Code instance should perform the review.\n- D) Yes, but only for files the session directly modified; spawn an independent review instance for files touched indirectly to balance context depth with review objectivity.",
+		"question": "Your team has integrated Claude Code into the CI pipeline to run automated code reviews on every pull request. The review findings are posted as structured inline PR comments. The pipeline currently uses this invocation:\n\n```\nclaude --print \"Review this PR for security and correctness issues\" \\\n  --output-format json \\\n  --json-schema ./review-schema.json\n```\n\nA senior engineer proposes that review quality would improve significantly if the same Claude Code session that generated the PR's code changes also performed the code review—this way the model already has full context of every design decision made during implementation. Should you adopt this approach?",
 		"difficulty": "hard",
 		"domain": "claude-code-config",
 		"scenario": "developer-productivity",
@@ -1748,22 +1760,22 @@
 		}
 	},
 	{
-		"question": "Your team's developer productivity agent helps engineers debug CI failures. You have configured a custom MCP server that provides a `run_pipeline_analysis` tool, and the agent also has access to the built-in Bash tool. Engineers report that when the `run_pipeline_analysis` tool encounters a transient network timeout contacting the CI backend, the tool returns a generic JSON response: `{\"error\": \"Operation failed\"}`. The agent then retries the same call up to five times in a tight loop before finally halting and telling the engineer it cannot complete the task — even though many pipeline failures are diagnosable from locally available log files. What is the most effective change to fix this behavior?",
+		"question": "Your team's developer productivity agent helps engineers debug CI failures. You have configured a custom MCP server that provides a `run_pipeline_analysis` tool, and the agent also has access to the built-in Bash tool. Engineers report that when `run_pipeline_analysis` is invoked for a pipeline owned by a team the agent's service account is not authorized to access, the CI backend rejects the request — a permanent permission condition that will never succeed on retry. The tool returns a generic JSON response: `{\"error\": \"Operation failed\"}`. The agent then retries the same call up to five times in a tight loop before finally halting and telling the engineer it cannot complete the task — even though many of these failures are still diagnosable from locally available log files. What is the most effective change to fix this behavior?",
 		"difficulty": "hard",
 		"domain": "tool-design-mcp",
 		"scenario": "developer-productivity",
 		"alternatives": {
-			"a": "Update the system prompt to instruct the agent to fall back to parsing local log files using the Bash tool whenever any MCP tool returns an error response.",
-			"b": "Return a structured error response from `run_pipeline_analysis` that includes `errorCategory: \"transient\"`, `isRetryable: false`, a human-readable description of the failure, and any partial results already retrieved — so the agent can make an informed recovery decision without exhausting retries.",
-			"c": "Return a structured error response from `run_pipeline_analysis` that includes `errorCategory: \"transient\"`, `isRetryable: true`, and a recommended retry delay — so the agent retries intelligently with backoff instead of in a tight loop.",
-			"d": "Add a circuit-breaker wrapper around `run_pipeline_analysis` that intercepts repeated failures and automatically switches the agent to a local-analysis mode after two consecutive timeouts."
+			"a": "Update the system prompt to instruct the agent to fall back to parsing local log files using the built-in Bash tool whenever any MCP tool returns an error response.",
+			"b": "Return a structured error response from `run_pipeline_analysis` that includes `errorCategory: \"permission\"`, `isRetryable: false`, a human-readable description of why access was denied, and a summary of what was attempted — so the agent can make an informed recovery decision (such as pivoting to local log analysis) without exhausting retries.",
+			"c": "Return a structured error response from `run_pipeline_analysis` that includes `errorCategory: \"transient\"`, `isRetryable: true`, and a recommended retry delay — so the agent retries with backoff instead of in a tight loop.",
+			"d": "Add a circuit-breaker wrapper around `run_pipeline_analysis` that intercepts repeated failures and automatically switches the agent to a local-analysis mode after two consecutive failures."
 		},
 		"correct_alternative": "b",
 		"insights": {
-			"a": "Incorrect. System prompt instructions create probabilistic guidance, not deterministic recovery logic. The root cause is that the generic error response gives the agent no information about what failed or whether retrying is worthwhile. A prompt instruction won't prevent the agent from retrying before it falls back, and it doesn't address the structural problem of uninformative error metadata.",
-			"b": "Correct. The core problem is that `{\"error\": \"Operation failed\"}` is a uniform, opaque response that prevents the agent from making an appropriate recovery decision. For a transient network timeout where CI backend data is unavailable, the tool should signal `isRetryable: false` (no point retrying a backend that is down), include any partial results already retrieved, and provide a human-readable explanation. This gives the agent the structured context it needs to pivot to local log analysis rather than waste retry attempts.",
-			"c": "Incorrect. Marking a transient network timeout as `isRetryable: true` perpetuates the retry loop that is already causing the problem — it just slows it down with backoff. For a backend that is genuinely unreachable, further retries are wasteful. The correct signal is `isRetryable: false` combined with partial results and context, so the agent can route to an alternative recovery path instead of retrying.",
-			"d": "Incorrect. A circuit-breaker is an infrastructure-level pattern that controls call volume, not the quality of information returned to the agent. Even with a circuit breaker in place, the agent still receives no structured metadata about what failed or what partial data is available. The agent's poor recovery decisions stem from uninformative error responses, not from the number of calls being made."
+			"a": "Incorrect. System prompt instructions create probabilistic guidance, not deterministic recovery logic. The root cause is that the generic error response gives the agent no information about what failed or whether retrying is worthwhile. A prompt instruction won't reliably stop the agent from retrying before it falls back, and it doesn't address the structural problem of uninformative error metadata.",
+			"b": "Correct. The core problem is that `{\"error\": \"Operation failed\"}` is a uniform, opaque response that prevents the agent from making an appropriate recovery decision. A permission denial is a non-retryable failure, so the tool should signal `errorCategory: \"permission\"` with `isRetryable: false`, a human-readable description, and a summary of what was attempted. This gives the agent the structured context it needs to stop retrying immediately and pivot to local log analysis rather than wasting attempts on a request that can never succeed.",
+			"c": "Incorrect. Marking a permanent permission denial as `errorCategory: \"transient\"` with `isRetryable: true` mischaracterizes the failure: the request will never succeed regardless of backoff, so the agent keeps retrying a non-recoverable error and still never pivots to the local logs. Correct error categorization — not retry timing — is what the agent needs here.",
+			"d": "Incorrect. A circuit breaker is an infrastructure-level pattern that controls call volume, not the quality of information returned to the agent. Even with a breaker in place, the agent still receives no structured metadata about what failed or why, and its coarse threshold can both mask genuinely retryable failures and trip on unrelated ones. The agent's poor recovery decisions stem from uninformative error responses, not from the number of calls being made."
 		}
 	},
 	{
@@ -2375,22 +2387,22 @@
 		}
 	},
 	{
-		"question": "Your CI pipeline runs automated security reviews on every pull request and posts inline comments using structured JSON findings. After deploying, you observe that roughly 20% of responses fail schema validation — specifically, the `severity` field occasionally contains values like `\"informational\"` or `\"note\"` instead of the required enum values `\"critical\"`, `\"high\"`, `\"medium\"`, or `\"low\"`. You are already using `--output-format json` with a `--json-schema` flag. Your current retry logic simply re-submits the exact same prompt when validation fails. Developers are complaining about intermittent pipeline delays caused by the retries. What is the most effective change to eliminate these schema violations?",
+		"question": "Your CI pipeline runs automated security reviews by calling the Claude API and posting the returned findings as inline PR comments. The request currently uses a prompt that instructs the model to 'respond with a JSON array of findings,' with no tool use configured. After deploying, you observe that roughly 20% of responses fail schema validation — the `severity` field occasionally contains values like `\"informational\"` or `\"note\"` instead of the required enum values `\"critical\"`, `\"high\"`, `\"medium\"`, or `\"low\"`, and occasionally the model wraps the JSON in explanatory prose. Your current retry logic simply re-submits the exact same prompt when validation fails, and developers are complaining about the resulting pipeline delays. What is the most effective change to eliminate these schema violations?",
 		"difficulty": "hard",
 		"domain": "prompt-engineering",
 		"scenario": "ci-cd-integration",
 		"alternatives": {
-			"a": "Switch from `--output-format json` with `--json-schema` to enforced tool use with a JSON schema defining `severity` as a strict enum, eliminating syntax and enum-constraint violations at the model output level.",
+			"a": "Define an extraction tool whose input schema declares `severity` as a strict enum (`critical`/`high`/`medium`/`low`) and the findings array as its parameters, then call the API with forced tool use (`tool_choice` set to that tool) so the model must return schema-conformant arguments — eliminating both the prose wrapping and the out-of-enum values.",
 			"b": "On validation failure, append the specific error to the retry prompt — e.g., 'Your previous response used severity value \"informational\", which is not in the allowed enum [critical, high, medium, low]. Correct this and resubmit.' — so the model can self-correct.",
-			"c": "Add 2–3 few-shot examples to the prompt demonstrating findings with all four valid severity values in use, so the model learns the allowed vocabulary by example rather than only by instruction.",
-			"d": "Expand the JSON schema to add `\"informational\"` and `\"note\"` as valid enum values, then map them to `\"low\"` in your downstream comment-posting script, eliminating validation failures without prompt changes."
+			"c": "Add 2–3 few-shot examples to the prompt demonstrating findings that use the four valid severity values, so the model learns the allowed vocabulary by example rather than only by instruction.",
+			"d": "Expand the validation step to also accept `\"informational\"` and `\"note\"` as valid severity values, then map them to `\"low\"` in your downstream comment-posting script, eliminating validation failures without prompt changes."
 		},
 		"correct_alternative": "a",
 		"insights": {
-			"a": "Correct. `--output-format json` with `--json-schema` improves structure but does not guarantee enum-constraint compliance at the model level — the model can still emit out-of-vocabulary strings. Enforced tool use with a JSON schema as input parameters is the documented mechanism for guaranteed schema-compliant output, including enum constraints, eliminating this entire class of violation before validation occurs. This removes the root cause rather than managing failures after the fact.",
-			"b": "Incorrect. Retry-with-error-feedback is the right technique when the model has made a correctable format or structural error. However, the problem here is not that the model lacks information to correct itself — it is that the output mechanism (`--output-format json` with `--json-schema`) does not enforce enum constraints at generation time. Retrying with feedback treats the symptom (individual failures) rather than eliminating the root cause (insufficient output enforcement), and still introduces pipeline delays on the ~20% failure path.",
-			"c": "Incorrect. Few-shot examples demonstrating valid severity values would improve the statistical frequency of correct enum usage, but they cannot guarantee compliance — the model can still generalize outside demonstrated values for novel cases. This is a real and useful technique, but it solves output consistency problems, not schema enforcement problems. The question asks for the most effective change to *eliminate* violations, not merely reduce them.",
-			"d": "Incorrect. Expanding the schema to accept invalid values and remapping them downstream is an anti-pattern: it moves validation logic out of the AI output layer and into ad-hoc post-processing code, silently accepting non-standard values and making the schema meaningless as a contract. It solves the immediate parsing failure but degrades the reliability of the structured output contract the pipeline depends on."
+			"a": "Correct. Asking for JSON in the prompt is probabilistic — the model can emit out-of-enum values or wrap the output in prose. Tool use with a JSON schema is the documented mechanism for guaranteed schema-compliant structured output: declaring `severity` as a strict enum in the tool's input schema and forcing the call with `tool_choice` constrains the model's output to the schema, eliminating both the prose wrapping and the invalid enum values before any validation runs. This removes the root cause rather than correcting failures after the fact.",
+			"b": "Incorrect. Retry-with-error-feedback is the right technique when no stronger enforcement is available and the model has made a correctable error, but it treats the symptom (individual failures) rather than eliminating the root cause (output that is never constrained to the schema). It still incurs the pipeline delays developers are complaining about on the ~20% failure path, and offers no guarantee the resubmission will conform either.",
+			"c": "Incorrect. Few-shot examples demonstrating valid severity values raise the statistical frequency of correct enum usage but cannot guarantee compliance — the model can still produce out-of-vocabulary values for novel findings, and examples do not prevent prose wrapping. This is a useful technique for output consistency, not a schema-enforcement guarantee, and the question asks to eliminate violations, not merely reduce them.",
+			"d": "Incorrect. Accepting invalid values and remapping them downstream is an anti-pattern: it moves validation out of the structured-output layer into ad-hoc post-processing, silently accepts non-standard values, and makes the schema meaningless as a contract. It hides the problem rather than fixing the model's output, and any new out-of-vocabulary value beyond 'informational'/'note' will reintroduce the failure."
 		}
 	},
 	{
