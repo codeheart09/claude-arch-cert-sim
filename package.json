@@ -13,6 +13,7 @@
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
 		"db:seed": "tsx db/seed.ts",
+		"db:seed:dev": "tsx scripts/seed-dev-runtime.ts",
 		"questions:generate": "tsx scripts/generate-questions.ts",
 		"questions:dump-generated": "tsx scripts/dump-generated-questions.ts"
 	},
