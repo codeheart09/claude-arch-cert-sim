@@ -16,8 +16,7 @@
 			"b": "Incorrect. Prompt instructions rely on LLM compliance, which is probabilistic. At 12% skip rate, the system prompt is already failing — reiterating the rule won't provide the reliability needed for financial operations.",
 			"c": "Incorrect. Few-shot examples improve average adherence statistically but still cannot guarantee the sequence. The 12% failure rate can persist even with exemplars present.",
 			"d": "Incorrect. A routing classifier controls which tools are available for a request type, not the order in which they must be called. It doesn't solve the sequencing problem."
-		},
-		"skipped": true
+		}
 	},
 	{
 		"question": "Production logs show the agent frequently calls `get_customer` when users ask about orders (e.g., 'check my order #12345'), instead of calling `lookup_order`. Both tools have minimal descriptions ('Retrieves customer information' / 'Retrieves order details') and accept similar identifier formats. What's the most effective first step to improve tool selection reliability?",
@@ -36,8 +35,7 @@
 			"b": "Correct. Tool descriptions are the primary mechanism LLMs use for tool selection. Minimal descriptions leave the model without context to distinguish similar tools. Expanding them with input formats, example queries, and explicit boundaries directly addresses the root cause with minimal effort.",
 			"c": "Incorrect. A routing layer is over-engineered for what is fundamentally a description quality problem. It bypasses the LLM's natural language understanding rather than improving it.",
 			"d": "Incorrect. Consolidating tools is a valid architectural refactor but is higher effort than warranted as a 'first step.' It also hides the distinction rather than teaching the model to make it."
-		},
-		"skipped": true
+		}
 	},
 	{
 		"question": "Your agent achieves 55% first-contact resolution, well below the 80% target. Logs show it escalates straightforward cases (standard damage replacements with photo evidence) while attempting to autonomously handle complex situations requiring policy exceptions. What's the most effective way to improve escalation calibration?",
@@ -56,8 +54,7 @@
 			"b": "Incorrect. LLM self-reported confidence is poorly calibrated. The agent is already incorrectly confident on complex cases, so a threshold based on self-reported confidence won't fix the underlying issue.",
 			"c": "Incorrect. A separate classifier requires labeled historical data and ML infrastructure. This is over-engineered when the simpler fix of prompt optimization hasn't been tried first.",
 			"d": "Incorrect. Sentiment doesn't correlate with case complexity. A customer can be calm about a complex policy exception and frustrated about a simple replacement. This solves a different problem entirely."
-		},
-		"skipped": true
+		}
 	},
 	{
 		"question": "You want to create a custom /review slash command that runs your team's standard code review checklist. This command should be available to every developer when they clone or pull the repository. Where should you create this command file?",
@@ -76,8 +73,7 @@
 			"b": "Incorrect. ~/.claude/commands/ stores personal commands in the user's home directory. These are not shared via version control and must be created individually by each developer.",
 			"c": "Incorrect. CLAUDE.md is for project instructions and persistent context, not command definitions. Commands placed there are not executable as slash commands.",
 			"d": "Incorrect. There is no .claude/config.json commands array mechanism in Claude Code. This configuration path does not exist."
-		},
-		"skipped": true
+		}
 	},
 	{
 		"question": "You've been assigned to restructure the team's monolithic application into microservices. This will involve changes across dozens of files and requires decisions about service boundaries and module dependencies. Which approach should you take?",
@@ -96,8 +92,7 @@
 			"b": "Incorrect. Incremental execution without upfront design risks discovering cross-service dependencies late, leading to costly rework or refactoring cycles.",
 			"c": "Incorrect. Comprehensive upfront instructions assume you already know the correct structure without exploring the codebase. The whole value of plan mode is enabling that exploration first.",
 			"d": "Incorrect. The complexity is already stated in the requirements (dozens of files, architectural decisions). There is no reason to wait for complexity to emerge when it is already known."
-		},
-		"skipped": true
+		}
 	},
 	{
 		"question": "Your codebase has distinct areas with different coding conventions: React components use functional style with hooks, API handlers use async/await with specific error handling, and database models follow a repository pattern. Test files are spread throughout the codebase alongside the code they test (e.g., Button.test.tsx next to Button.tsx), and you want all tests to follow the same conventions regardless of location. What's the most maintainable way to ensure Claude automatically applies the correct conventions when generating code?",
@@ -116,8 +111,7 @@
 			"b": "Incorrect. Relying on Claude to infer which section applies is non-deterministic. The model may apply the wrong conventions or miss them entirely, especially for files in unexpected locations.",
 			"c": "Incorrect. Skills require manual invocation or Claude choosing to load them. They don't provide the deterministic, path-triggered application that the requirement calls for.",
 			"d": "Incorrect. Directory-bound CLAUDE.md files cannot handle conventions for files spread across many subdirectories — test files living next to their source files span the entire project tree."
-		},
-		"skipped": true
+		}
 	},
 	{
 		"question": "After running the system on the topic 'impact of AI on creative industries,' you observe that each subagent completes successfully: the web search agent finds relevant articles, the document analysis agent summarizes papers correctly, and the synthesis agent produces coherent output. However, the final reports cover only visual arts, completely missing music, writing, and film production. When you examine the coordinator's logs, you see it decomposed the topic into three subtasks: 'AI in digital art creation,' 'AI in graphic design,' and 'AI in photography.' What is the most likely root cause?",
@@ -136,8 +130,7 @@
 			"b": "Correct. The coordinator's own logs reveal the root cause: it decomposed 'creative industries' into only visual arts subtasks. Music, writing, and film were never assigned to any subagent — so no agent had a chance to cover them.",
 			"c": "Incorrect. The web search agent executed its assigned queries correctly. The problem is what queries it was asked to run, which is determined by the coordinator's decomposition.",
 			"d": "Incorrect. The document analysis agent worked correctly within its assigned scope. There is no evidence of filtering — it simply never received non-visual-arts sources to analyze."
-		},
-		"skipped": true
+		}
 	},
 	{
 		"question": "The web search subagent times out while researching a complex topic. You need to design how this failure information flows back to the coordinator agent. Which error propagation approach best enables intelligent recovery?",
@@ -156,8 +149,7 @@
 			"b": "Incorrect. A generic 'search unavailable' status hides the valuable context (failure type, attempted query, partial results) that the coordinator needs to decide how to recover. Retry policy is also better owned by the coordinator.",
 			"c": "Incorrect. Marking a failure as success suppresses the error entirely, preventing any recovery. The coordinator believes the research succeeded and may produce incomplete outputs with no indication something went wrong.",
 			"d": "Incorrect. Terminating the entire workflow on a single subagent timeout is disproportionate. Recovery strategies — retrying, modifying the query, using an alternative source — could succeed without abandoning all prior work."
-		},
-		"skipped": true
+		}
 	},
 	{
 		"question": "During testing, you observe that the synthesis agent frequently needs to verify specific claims while combining findings. Currently, when verification is needed, the synthesis agent returns control to the coordinator, which invokes the web search agent, then re-invokes synthesis with results. This adds 2–3 round trips per task and increases latency by 40%. Your evaluation shows that 85% of these verifications are simple fact-checks (dates, names, statistics) while 15% require deeper investigation. What's the most effective approach to reduce overhead while maintaining system reliability?",
@@ -176,8 +168,7 @@
 			"b": "Incorrect. Batching verification needs creates blocking dependencies: later synthesis steps may depend on facts that haven't been verified yet within the same pass. Batching forces an artificial wait that may be worse than the current latency.",
 			"c": "Incorrect. Giving the synthesis agent all web search tools over-provisions it and violates separation of concerns. It could now perform deep research tasks that belong to the web search agent, making the architecture harder to reason about and maintain.",
 			"d": "Incorrect. Speculative caching cannot reliably predict which specific claims the synthesis agent will need to verify later. This approach would cache large amounts of irrelevant data and still miss needed verifications."
-		},
-		"skipped": true
+		}
 	},
 	{
 		"question": "Your pipeline script runs `claude \"Analyze this pull request for security issues\"` but the job hangs indefinitely. Logs indicate Claude Code is waiting for interactive input. What's the correct approach to run Claude Code in an automated pipeline?",
@@ -196,8 +187,7 @@
 			"b": "Incorrect. CLAUDE_HEADLESS is not a real environment variable in Claude Code. Setting it has no effect.",
 			"c": "Incorrect. Redirecting stdin from /dev/null is a Unix workaround that doesn't address Claude Code's command syntax for non-interactive mode. The correct mechanism is the -p flag.",
 			"d": "Incorrect. There is no --batch flag in Claude Code. This option does not exist."
-		},
-		"skipped": true
+		}
 	},
 	{
 		"question": "Your team wants to reduce API costs for automated analysis. Currently, real-time Claude calls power two workflows: (1) a blocking pre-merge check that must complete before developers can merge, and (2) a technical debt report generated overnight for review the next morning. Your manager proposes switching both to the Message Batches API for its 50% cost savings. How should you evaluate this proposal?",
@@ -216,8 +206,7 @@
 			"b": "Incorrect. Status polling doesn't change the underlying constraint: the batch API has no guaranteed latency SLA and can take hours. Polling a blocking pre-merge check until it eventually completes still leaves developers waiting an unacceptable amount of time.",
 			"c": "Incorrect. This is based on a misconception. Batch results can be correlated to their original requests using custom_id fields, so ordering is not an issue.",
 			"d": "Incorrect. A timeout fallback to real-time adds unnecessary complexity. The simpler and correct solution is to match each API to its appropriate use case based on latency requirements."
-		},
-		"skipped": true
+		}
 	},
 	{
 		"question": "A pull request modifies 14 files across the stock tracking module. Your single-pass review analyzing all files together produces inconsistent results: detailed feedback for some files but superficial comments for others, obvious bugs missed, and contradictory feedback — flagging a pattern as problematic in one file while approving identical code elsewhere in the same PR. How should you restructure the review?",
@@ -236,8 +225,7 @@
 			"b": "Incorrect. Requiring smaller PRs shifts the burden entirely to developers without improving the review system itself. It also doesn't fix the underlying attention issue for any PR that genuinely requires multiple files.",
 			"c": "Incorrect. A larger context window doesn't solve attention quality degradation. The model can technically 'see' more tokens, but its ability to maintain consistent analytical depth across many files is the limiting factor, not context length.",
 			"d": "Incorrect. Requiring consensus across three passes would actually suppress detection of real bugs. Issues caught intermittently — perhaps due to attention variation — are still real issues, not false positives to be filtered out."
-		},
-		"skipped": true
+		}
 	},
 	{
 		"question": "Your customer support agent handles multi-concern tickets — for example, a customer who has both a billing dispute and a missing item from the same order. Logs show the agent addresses only the first issue it detects, then closes the ticket, leaving the second concern unresolved. A second contact rate of 28% is traced directly to this behavior. What architectural change would most effectively fix this?",
