@@ -1,0 +1,189 @@
+.page {
+	min-height: 100dvh;
+	display: flex;
+	justify-content: center;
+	padding-block: var(--mantine-spacing-md);
+	padding-inline: var(--mantine-spacing-xl);
+	padding-top: calc(var(--mantine-spacing-xl) * 3);
+}
+
+.pageSetup {
+	min-height: 100dvh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding-inline: var(--mantine-spacing-xl);
+	padding-block: calc(var(--mantine-spacing-xl) * 3);
+}
+
+.inner {
+	width: 100%;
+}
+
+.card {
+	width: 100%;
+	padding: var(--mantine-spacing-lg);
+	border: 1px solid var(--surface-highlight-border);
+	background: var(--surface-highlight);
+	box-shadow: var(--mantine-shadow-sm);
+}
+
+.setupCard {
+	width: 26rem;
+	max-width: 100%;
+	padding: var(--mantine-spacing-xl);
+	border: 1px solid var(--surface-highlight-border);
+	background: var(--surface-highlight);
+	box-shadow: var(--mantine-shadow-sm);
+}
+
+.question {
+	font-size: var(--mantine-font-size-lg);
+	line-height: var(--mantine-line-height-md);
+	font-weight: 600;
+}
+
+.choice {
+	padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+	border: 1px solid var(--surface-highlight-border);
+	border-radius: var(--mantine-radius-md);
+	transition:
+		background-color 120ms ease,
+		border-color 120ms ease;
+}
+
+.choice:hover {
+	border-color: var(--mantine-primary-color-filled);
+}
+
+.choiceSelected {
+	border-color: var(--mantine-primary-color-filled);
+	background: var(--mantine-primary-color-light);
+}
+
+.choiceCorrect {
+	border-color: var(--mantine-color-green-filled);
+	background: var(--mantine-color-green-light);
+}
+
+.choiceIncorrect {
+	border-color: var(--mantine-color-red-filled);
+	background: var(--mantine-color-red-light);
+}
+
+.choiceLabel {
+	font-size: var(--mantine-font-size-md);
+	line-height: var(--mantine-line-height-sm);
+}
+
+/* ─── Timer badge ─────────────────────────────────────────────────────────── */
+
+.timerBadge {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--mantine-spacing-xs);
+	padding: 6px var(--mantine-spacing-sm);
+	border: 1px solid var(--surface-highlight-border);
+	border-radius: var(--mantine-radius-md);
+	background: var(--surface-highlight);
+	box-shadow: var(--mantine-shadow-xs);
+	transition:
+		border-color 200ms ease,
+		background 200ms ease,
+		color 200ms ease;
+}
+
+.timerBadgeOvertime {
+	border-color: var(--mantine-color-red-4);
+	background: var(--mantine-color-red-light);
+	color: var(--mantine-color-red-filled);
+}
+
+.timerBadgePaused {
+	border-color: var(--mantine-color-yellow-4);
+	background: var(--mantine-color-yellow-light);
+	color: var(--mantine-color-yellow-filled);
+}
+
+.timerDigits {
+	font-family: var(--mantine-font-family-monospace);
+	font-size: 1.125rem;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+	letter-spacing: 0.06em;
+	line-height: 1;
+}
+
+.statusDot {
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	flex-shrink: 0;
+	transition: background 200ms ease;
+}
+
+.statusDotRunning {
+	background: var(--mantine-color-green-filled);
+	box-shadow: 0 0 0 2px var(--mantine-color-green-light);
+}
+
+.statusDotPaused {
+	background: var(--mantine-color-yellow-filled);
+	box-shadow: 0 0 0 2px var(--mantine-color-yellow-light);
+}
+
+.statusDotOvertime {
+	background: var(--mantine-color-red-filled);
+	box-shadow: 0 0 0 2px var(--mantine-color-red-light);
+}
+
+.statusDotDone {
+	background: var(--mantine-color-dimmed);
+	box-shadow: none;
+}
+
+.headerRow {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--mantine-spacing-sm);
+}
+
+.headerControls {
+	display: flex;
+	align-items: center;
+	gap: var(--mantine-spacing-xs);
+}
+
+.timeInputSeparator {
+	font-size: var(--mantine-font-size-xl);
+	font-weight: 600;
+	color: var(--mantine-color-dimmed);
+	line-height: 1;
+	padding-bottom: calc(var(--mantine-spacing-xs) * 0.5);
+}
+
+@media (max-width: 48em) {
+	.page {
+		padding-inline: var(--mantine-spacing-md);
+		padding-top: calc(var(--mantine-spacing-xl) * 2.5);
+	}
+
+	.pageSetup {
+		padding-inline: var(--mantine-spacing-md);
+	}
+
+	.card {
+		padding: var(--mantine-spacing-md);
+	}
+
+	.setupCard {
+		width: 100%;
+		padding: var(--mantine-spacing-lg);
+	}
+
+	.timerDigits {
+		font-size: 1rem;
+	}
+}

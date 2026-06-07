@@ -52,10 +52,11 @@ export async function fetchRandomQuestion(
 export async function submitPracticeAnswer(
 	questionId: number,
 	selected: Alternative,
+	durationMs?: number,
 ): Promise<AnswerResult> {
 	if (!ALTERNATIVE_ENUM.includes(selected)) {
 		throw new Error(`Invalid alternative: ${selected}`);
 	}
 
-	return gradeAndRecordAnswer(questionId, selected);
+	return gradeAndRecordAnswer(questionId, selected, durationMs);
 }

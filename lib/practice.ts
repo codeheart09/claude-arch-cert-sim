@@ -75,6 +75,7 @@ export function getRandomPracticeQuestion(
 export function gradeAndRecordAnswer(
 	questionId: number,
 	selected: Alternative,
+	durationMs?: number,
 ): AnswerResult {
 	const question = getQuestionById(questionId);
 	if (!question) {
@@ -86,7 +87,12 @@ export function gradeAndRecordAnswer(
 		Record<Alternative, string>
 	>;
 
-	insertAnswer({ questionId, selectedAlternative: selected, isCorrect });
+	insertAnswer({
+		questionId,
+		selectedAlternative: selected,
+		isCorrect,
+		duration: durationMs ?? null,
+	});
 
 	return { isCorrect, insight: insights[selected] ?? "" };
 }

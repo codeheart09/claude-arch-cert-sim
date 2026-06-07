@@ -23,8 +23,8 @@ const items: NavigationItem[] = [
 	{ label: "Your Analytics", href: "/analytics", Icon: IconChartBar },
 	{ label: "Exam Simmulator", href: "/exam-simulator", Icon: IconCertificate },
 	{
-		label: "Question Stopwatch",
-		href: "/question-stopwatch",
+		label: "Timed Questions",
+		href: "/timed-questions",
 		Icon: IconStopwatch,
 	},
 	{

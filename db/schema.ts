@@ -92,6 +92,7 @@ export const answers = sqliteTable("answers", {
 		enum: ALTERNATIVE_ENUM,
 	}).notNull(),
 	isCorrect: integer("is_correct", { mode: "boolean" }).notNull(),
+	duration: integer("duration"),
 	createdAt: integer("created_at", { mode: "timestamp" })
 		.notNull()
 		.default(sql`(unixepoch())`),
