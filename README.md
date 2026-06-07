@@ -1,26 +1,33 @@
 # Claude Certified Architect Exam Simulator
 
-A training application for engineers preparing for the **Claude Certified Architect** certification exam. It provides a realistic, interactive exam simulation experience to build confidence and deepen understanding of Claude's architecture, capabilities, and best practices.
+A local-first training application for engineers preparing for the **Claude Certified Architect** certification exam. It combines structured practice modes, analytics, and agent-driven study workflows to help you build exam readiness against the certification's architecture, API, prompting, safety, and operational topics.
 
-It is an **agentic application**: agents interact with you to generate fresh, unseen questions, evaluate your performance, and power other intelligent interactions throughout a session.
+It is an **agentic application**: agents generate fresh, unseen questions, challenge and explain answers, and use a local RAG knowledge base to stay grounded in the exam material.
 
-## Purpose
+## Features
 
-The certification exam tests knowledge across a range of topics including Claude's model capabilities, API usage patterns, prompt engineering, tool use, safety considerations, and architectural best practices for production deployments. This simulator lets candidates:
-
-- Practice with exam-style questions across all topic domains
-- Get immediate feedback with detailed explanations
-- Track progress and identify weak areas over time
-- Simulate timed exam conditions
+- **Random practice questions** to drill across the question bank without repeating the same flow every session
+- **Timed per-question practice** for response-speed training with pause/resume support
+- **Full exam simulator** with a 60-question session, total exam timer, scoring, and results breakdown
+- **Immediate answer feedback** with per-option insights that explain why each choice is right or wrong
+- **Analytics dashboard** for accuracy, exam passes, answer speed, exam duration, and category trends
+- **AI tutor conversations** for follow-up questions and challenge flows tied to specific questions
+- **Agent-generated questions** added to the local bank, with schema validation and semantic deduplication
+- **Local RAG grounding** over the certification study corpus so generated content stays aligned to the exam guide
+- **Local-only operation** with no authentication or hosted app dependency
 
 ## Stack
 
 | Layer | Technology |
 |---|---|
-| Framework | [Next.js](https://nextjs.org/) (App Router) |
+| Framework | [Next.js](https://nextjs.org/docs/app) 16 (App Router) |
 | Language | TypeScript |
-| Styling | CSS Modules |
+| UI | [Mantine](https://mantine.dev/) 9 + CSS Modules |
 | Database | SQLite via [Drizzle ORM](https://orm.drizzle.team/) |
+| Vector Search | [`sqlite-vec`](https://github.com/asg017/sqlite-vec) |
+| Embeddings | [`fastembed`](https://github.com/qdrant/fastembed) with a local model |
+| LLM Integration | [Anthropic SDK](https://github.com/anthropics/anthropic-sdk-typescript) |
+| RAG | Local knowledge base retrieval over seeded exam-study content |
 | Auth | None — clone and run locally |
 
 ## Getting Started
@@ -35,7 +42,8 @@ Then install dependencies, set up the database, and start the dev server — in 
 
 ```bash
 pnpm install                  # install dependencies
-cp .env.example .env.local    # create local config (edit if needed)
+cp .env.example .env.local    # create local config
+# Edit .env.local to add your credentials
 pnpm db:migrate               # create db/local.db and apply migrations
 pnpm db:seed                  # build the knowledge base (downloads the local embedding model on first run)
 pnpm dev                      # start the dev server
@@ -44,6 +52,17 @@ pnpm dev                      # start the dev server
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 The database must be migrated and seeded **before** `pnpm dev` — the app reads from it on startup. See [DATABASE.md](./DATABASE.md) for the full database architecture.
+
+## Environment Configuration
+
+Start by copying `.env.example` to `.env.local`, then review the values before first run.
+
+- `ANTHROPIC_API_KEY`: required for AI-driven features such as question generation and tutor conversations. Replace the placeholder with a real key if you plan to use those workflows.
+- `ANTHROPIC_MODEL`: optional. Leave the default unless you intentionally want a different Anthropic model.
+- `QUESTION_GEN_CONCURRENCY`: optional. Controls how many generation agents run in parallel for batch generation; the default is usually fine for local use.
+- `DATABASE_FILE`: optional. Leave it as `db/local.db` unless you deliberately want the app to use a different local SQLite file.
+
+Copying the example is only the starting point: if you want the agentic features, you must supply your own `ANTHROPIC_API_KEY`.
 
 ## Database
 
