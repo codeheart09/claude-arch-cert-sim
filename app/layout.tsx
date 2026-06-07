@@ -1,4 +1,5 @@
 import "@mantine/core/styles.css";
+import "@mantine/charts/styles.css";
 import "./globals.css";
 
 import { mantineHtmlProps } from "@mantine/core";

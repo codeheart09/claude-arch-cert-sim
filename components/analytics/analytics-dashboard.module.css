@@ -1,0 +1,155 @@
+/* ─── Page shell ───────────────────────────────────────────────────────────── */
+
+.page {
+	min-height: 100dvh;
+	padding-inline: var(--mantine-spacing-xl);
+	padding-top: calc(var(--mantine-spacing-xl) * 3.5);
+	padding-bottom: calc(var(--mantine-spacing-xl) * 2);
+}
+
+/* ─── Period selector bar ──────────────────────────────────────────────────── */
+
+.controls {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: var(--mantine-spacing-sm);
+}
+
+.pageTitle {
+	font-size: var(--mantine-h3-font-size);
+	font-weight: var(--mantine-h3-font-weight);
+	line-height: var(--mantine-h3-line-height);
+}
+
+/* ─── Section header ───────────────────────────────────────────────────────── */
+
+.sectionLabel {
+	font-size: var(--mantine-font-size-xs);
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.09em;
+	color: var(--mantine-color-dimmed);
+}
+
+/* ─── Stat cards (Row 1) ───────────────────────────────────────────────────── */
+
+.statCard {
+	padding: var(--mantine-spacing-lg);
+	border: 1px solid var(--surface-highlight-border);
+	background: var(--surface-highlight);
+	box-shadow: var(--mantine-shadow-xs);
+	border-radius: var(--mantine-radius-md);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	min-height: 176px;
+	position: relative;
+	overflow: hidden;
+}
+
+.statLabel {
+	font-size: var(--mantine-font-size-xs);
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--mantine-color-dimmed);
+	text-align: center;
+}
+
+.statValue {
+	font-size: 3.25rem;
+	font-weight: 800;
+	font-variant-numeric: tabular-nums;
+	line-height: 1;
+	letter-spacing: -0.03em;
+}
+
+.statSub {
+	font-size: var(--mantine-font-size-md);
+	color: var(--mantine-color-dimmed);
+	font-variant-numeric: tabular-nums;
+	position: absolute;
+	bottom: var(--mantine-spacing-sm);
+	right: var(--mantine-spacing-md);
+	line-height: 1;
+}
+
+.statNote {
+	font-size: var(--mantine-font-size-sm);
+	color: var(--mantine-color-dimmed);
+}
+
+/* ─── Ring label ───────────────────────────────────────────────────────────── */
+
+.ringLabel {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 2px;
+	pointer-events: none;
+}
+
+.ringValue {
+	font-size: 1.5rem;
+	font-weight: 800;
+	font-variant-numeric: tabular-nums;
+	line-height: 1;
+}
+
+.ringUnit {
+	font-size: var(--mantine-font-size-xs);
+	color: var(--mantine-color-dimmed);
+}
+
+/* ─── Chart cards (Rows 2 & 3) ────────────────────────────────────────────── */
+
+.chartCard {
+	padding: var(--mantine-spacing-lg);
+	border: 1px solid var(--surface-highlight-border);
+	background: var(--surface-highlight);
+	box-shadow: var(--mantine-shadow-xs);
+	border-radius: var(--mantine-radius-md);
+}
+
+.chartTitle {
+	font-size: var(--mantine-font-size-xs);
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--mantine-color-dimmed);
+	margin-bottom: var(--mantine-spacing-md);
+}
+
+/* ─── Empty state ──────────────────────────────────────────────────────────── */
+
+.emptyState {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: var(--mantine-spacing-xs);
+	min-height: 120px;
+}
+
+/* ─── Responsive ───────────────────────────────────────────────────────────── */
+
+@media (max-width: 64em) {
+	.page {
+		padding-inline: var(--mantine-spacing-md);
+		padding-top: calc(var(--mantine-spacing-xl) * 3);
+	}
+}
+
+@media (max-width: 48em) {
+	.page {
+		padding-inline: var(--mantine-spacing-sm);
+	}
+
+	.statValue {
+		font-size: 2.5rem;
+	}
+}

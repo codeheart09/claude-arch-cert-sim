@@ -23,6 +23,7 @@
 	},
 	"dependencies": {
 		"@anthropic-ai/sdk": "^0.102.0",
+		"@mantine/charts": "^9.3.0",
 		"@mantine/core": "^9.3.0",
 		"@mantine/hooks": "^9.3.0",
 		"@tabler/icons-react": "^3.44.0",
@@ -32,6 +33,7 @@
 		"next": "16.2.7",
 		"react": "19.2.4",
 		"react-dom": "19.2.4",
+		"recharts": "^3.8.1",
 		"sqlite-vec": "^0.1.9"
 	},
 	"devDependencies": {
