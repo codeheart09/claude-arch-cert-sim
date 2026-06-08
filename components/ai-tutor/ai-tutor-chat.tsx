@@ -66,6 +66,7 @@ export function AiTutorChat({ initialConversations, initialActiveId }: Props) {
 	const [input, setInput] = useState("");
 	const [, startTransition] = useTransition();
 	const messageListRef = useRef<HTMLDivElement>(null);
+	const autoResponseFiredRef = useRef<number | null>(null);
 
 	// Streams an AI response for a conversation whose user message is already persisted.
 	async function triggerAutoResponse(convId: number) {
@@ -184,8 +185,10 @@ export function AiTutorChat({ initialConversations, initialActiveId }: Props) {
 			if (
 				activeId === initialActiveId &&
 				msgs.length === 1 &&
-				msgs[0].role === "user"
+				msgs[0].role === "user" &&
+				autoResponseFiredRef.current !== activeId
 			) {
+				autoResponseFiredRef.current = activeId;
 				triggerAutoResponse(activeId);
 			}
 		});
