@@ -426,9 +426,13 @@ export function TimedQuestions({ initialQuestion }: TimedQuestionsProps) {
 									<Button
 										variant="default"
 										onClick={handleNext}
-										rightSection={<IconArrowRight size={18} stroke={1.7} />}
+										rightSection={
+											submitted ? (
+												<IconArrowRight size={18} stroke={1.7} />
+											) : undefined
+										}
 									>
-										Next
+										{submitted ? "Next" : "Skip Question"}
 									</Button>
 								</Group>
 							</Stack>
