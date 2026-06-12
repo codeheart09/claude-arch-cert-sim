@@ -1691,22 +1691,22 @@
 		}
 	},
 	{
-		"question": "Your multi-agent research system's coordinator delegates research tasks to a web-search subagent. During a post-launch review, you discover the web-search subagent's MCP tool is configured with `tool_choice: \"auto\"`. Production logs reveal that in roughly 35% of queries, the subagent returns a conversational response like \"Based on my training data, here's what I know about this topic…\" instead of calling the `web_search` tool and returning structured JSON results. These prose responses cause the synthesis subagent's citation parser to throw deserialization exceptions, halting the pipeline. The tool itself is correctly implemented and returns valid structured JSON when actually called. What is the most effective single fix?",
+		"question": "Your multi-agent research system's coordinator delegates research tasks to a web-search subagent whose scoped toolset contains two tools: `web_search` (returns structured JSON search results) and `web_fetch` (returns the raw contents of a specific URL). The subagent's API requests are configured with `tool_choice: \"auto\"`. Production logs reveal that in roughly 35% of queries, the subagent returns a conversational response like \"Based on my training data, here's what I know about this topic…\" instead of calling a tool. The downstream synthesis subagent's citation parser is built specifically for `web_search`'s structured JSON result schema, and it throws deserialization exceptions on anything else — both the prose responses and the occasional `web_fetch` output halt the pipeline. Both tools are correctly implemented. What is the most effective single fix?",
 		"difficulty": "medium",
 		"domain": "tool-design-mcp",
 		"scenario": "multi-agent-research",
 		"alternatives": {
 			"a": "Add a system prompt instruction to the web-search subagent stating: 'You must always call the web_search tool and never respond from training data. Do not return conversational text.'",
-			"b": "Change the web-search subagent's tool_choice configuration from \"auto\" to \"any\", guaranteeing the model calls a tool rather than returning conversational text.",
-			"c": "Change the web-search subagent's tool_choice configuration from \"auto\" to forced selection: `{\"type\": \"tool\", \"name\": \"web_search\"}`, ensuring the web_search tool is always invoked first.",
-			"d": "Add a post-processing validation layer after the web-search subagent's response that detects prose output and re-invokes the subagent with a retry prompt instructing it to call the tool."
+			"b": "Change the subagent's tool_choice configuration from \"auto\" to \"any\", guaranteeing the model calls a tool rather than returning conversational text.",
+			"c": "Change the subagent's tool_choice configuration from \"auto\" to forced selection: `{\"type\": \"tool\", \"name\": \"web_search\"}`, guaranteeing that `web_search` specifically is the tool invoked.",
+			"d": "Add a post-processing validation layer after the subagent's response that detects prose or non-`web_search` output and re-invokes the subagent with a retry prompt instructing it to call `web_search`."
 		},
-		"correct_alternative": "b",
+		"correct_alternative": "c",
 		"insights": {
 			"a": "Incorrect. Prompt instructions rely on probabilistic LLM compliance. At a 35% failure rate the model is already ignoring implicit expectations; reiterating the rule in natural language doesn't provide the deterministic guarantee needed and is exactly the approach that has already been failing.",
-			"b": "Correct. Setting tool_choice to 'any' guarantees the model calls at least one of its available tools rather than returning conversational text. Since the web-search subagent has only the web_search tool in its scoped toolset, 'any' deterministically forces that tool to be called, eliminating the prose fallback without over-constraining multi-turn flexibility.",
-			"c": "Incorrect — near-miss. Forced tool selection (`{\"type\": \"tool\", \"name\": \"web_search\"}`) is more restrictive than necessary: it pins every single turn to web_search, preventing the subagent from ever calling a follow-up tool (e.g., a verify_fact or format_citation scoped tool) in subsequent turns. 'any' achieves the same guarantee for the first call without locking down the entire tool selection policy.",
-			"d": "Incorrect. A retry wrapper addresses the symptom rather than the cause and doubles latency on the 35% failure cases. It also introduces a new failure mode if the retry itself returns prose, and adds infrastructure complexity when a one-line configuration change solves the problem at the source."
+			"b": "Incorrect — near-miss. `tool_choice: \"any\"` guarantees the model calls *some* tool, which eliminates the prose responses. But the subagent has two tools, and `any` lets the model choose between them — it can still call `web_fetch`, whose output the citation parser cannot deserialize. `any` fixes the prose half of the failure but not the wrong-tool half; it does not guarantee that `web_search` specifically is what runs.",
+			"c": "Correct. `{\"type\": \"tool\", \"name\": \"web_search\"}` forces that one specific tool, which is exactly what the pipeline requires: it eliminates the conversational responses *and* prevents the model from satisfying the constraint with `web_fetch`. Because this subagent's sole job is to return `web_search`'s structured JSON to the coordinator, pinning every delegation to `web_search` is the intended behavior, not an over-constraint. `any` (option b) is strictly weaker here because it leaves tool selection to the model.",
+			"d": "Incorrect. A retry wrapper addresses the symptom rather than the cause and adds latency on the 35% failure cases. It also introduces a new failure mode if the retry itself returns prose or the wrong tool, and adds infrastructure complexity when a one-line `tool_choice` change solves the problem deterministically at the source."
 		}
 	},
 	{
