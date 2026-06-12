@@ -12,16 +12,18 @@
  * Before updating anything, we require that every *unchanged* entry still
  * matches its same-position row by hash and that the row count matches — if
  * that lockstep is violated (reorder / insert / delete / soft-delete), the
- * script aborts instead of guessing. For each changed row, the dry run also
- * prints the L2 distance between the new embedding and the existing vector as a
+ * script aborts instead of guessing. Before writing, it prints the L2 distance
+ * between each changed row's new embedding and its existing vector as a
  * "is this the right row?" sanity signal (small = the pre-edit version).
  *
  * Generated questions (source='generated') are never touched — they aren't in
  * the JSON and live only in the DB.
  *
+ * Applies changes by default. Pass --dry-run to preview without writing.
+ *
  * Usage:
- *   tsx scripts/sync-questions.ts                 # dry run against db/questions.json
- *   tsx scripts/sync-questions.ts --apply         # write the changes
+ *   tsx scripts/sync-questions.ts                 # apply changes from db/questions.json
+ *   tsx scripts/sync-questions.ts --dry-run       # preview only, no writes
  *   tsx scripts/sync-questions.ts --json <path>   # use a different JSON file
  *   DATABASE_FILE=<path> tsx scripts/sync-questions.ts ...   # target another DB
  */
@@ -31,7 +33,7 @@ import { hashQuestion, type QuestionInput } from "../db/questions";
 import { embedPassages } from "../lib/embeddings";
 
 const args = process.argv.slice(2);
-const APPLY = args.includes("--apply");
+const DRY_RUN = args.includes("--dry-run");
 const jsonFlag = args.indexOf("--json");
 const JSON_PATH = jsonFlag >= 0 ? args[jsonFlag + 1] : "db/questions.json";
 
@@ -161,9 +163,9 @@ async function main(): Promise<void> {
 		console.log(`      L2(new vector, current vector): ${dist}`);
 	}
 
-	if (!APPLY) {
+	if (DRY_RUN) {
 		console.log(
-			"\nDry run — no changes written. Re-run with --apply to commit.",
+			"\nDry run (--dry-run) — no changes written. Re-run without it to apply.",
 		);
 		db.close();
 		return;
