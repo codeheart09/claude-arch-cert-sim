@@ -264,6 +264,22 @@ export function AnalyticsDashboard({ data, period }: Props) {
 										offset: -2,
 									},
 								}}
+								referenceLines={[
+									{
+										y: 72,
+										label: "Pass",
+										color: "yellow.5",
+										strokeDasharray: "4 4",
+										labelPosition: "insideTopLeft",
+									},
+									{
+										y: 90,
+										label: "Target",
+										color: "green.5",
+										strokeDasharray: "4 4",
+										labelPosition: "insideTopLeft",
+									},
+								]}
 								withTooltip
 								withLegend={false}
 							/>

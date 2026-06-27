@@ -162,12 +162,15 @@ function computeCorrectnessBatches(
 	batchSize: number,
 ): Batch[] {
 	const batches: Batch[] = [];
+	let cumulativeCorrect = 0;
+	let cumulativeTotal = 0;
 	for (let i = 0; i < answers.length; i += batchSize) {
 		const slice = answers.slice(i, i + batchSize);
-		const correct = slice.filter((a) => a.isCorrect).length;
+		cumulativeCorrect += slice.filter((a) => a.isCorrect).length;
+		cumulativeTotal += slice.length;
 		batches.push({
 			label: String(batches.length + 1),
-			value: Math.round((correct / slice.length) * 1000) / 10,
+			value: Math.round((cumulativeCorrect / cumulativeTotal) * 1000) / 10,
 			count: slice.length,
 		});
 	}

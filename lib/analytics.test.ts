@@ -296,6 +296,7 @@ describe("getAnalyticsData — batch computations", () => {
 
 	it("correctnessBatches splits answers into equal-sized groups", async () => {
 		// 4 answers → batchSize = max(1, ceil(4/30)) = 1 → 4 batches of 1
+		// values are cumulative accuracy: 1/1, 2/2, 3/3, 3/4
 		mocks.getRawAnswers.mockReturnValue([
 			makeAnswer({ isCorrect: true }),
 			makeAnswer({ isCorrect: true }),
@@ -306,7 +307,7 @@ describe("getAnalyticsData — batch computations", () => {
 		const { correctnessBatches } = getAnalyticsData("all");
 		expect(correctnessBatches).toHaveLength(4);
 		expect(correctnessBatches[0].value).toBe(100);
-		expect(correctnessBatches[3].value).toBe(0);
+		expect(correctnessBatches[3].value).toBe(75);
 	});
 
 	it("correctnessBatches value is rounded to one decimal place", async () => {
@@ -318,10 +319,9 @@ describe("getAnalyticsData — batch computations", () => {
 		]);
 		const { getAnalyticsData } = await loadSubject();
 		const { correctnessBatches } = getAnalyticsData("all");
-		// batchSize = 1 → 3 batches; but let's check the math for a 3-item slice
-		// Actually batchSize=1, so each answer is own batch: 100, 100, 0
+		// batchSize = 1 → 3 batches; cumulative: 1/1=100, 2/2=100, 2/3=66.7
 		expect(correctnessBatches[0].value).toBe(100);
-		expect(correctnessBatches[2].value).toBe(0);
+		expect(correctnessBatches[2].value).toBe(66.7);
 	});
 
 	it("responseTimeBatches skips null durations in the average", async () => {
