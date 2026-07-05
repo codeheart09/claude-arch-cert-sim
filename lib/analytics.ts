@@ -30,6 +30,7 @@ export interface AnalyticsData {
 }
 
 const PASSING_SCORE = 720;
+const MIN_BATCH_SIZE = 10;
 const MAX_BATCHES = 30;
 
 const DOMAIN_LABELS: Record<Domain, string> = {
@@ -112,7 +113,10 @@ function compute(
 			? exams.reduce((s, e) => s + e.duration, 0) / exams.length
 			: null;
 
-	const batchSize = Math.max(1, Math.ceil(total / MAX_BATCHES));
+	const batchSize =
+		total > MAX_BATCHES * MIN_BATCH_SIZE
+			? Math.ceil(total / MAX_BATCHES)
+			: MIN_BATCH_SIZE;
 
 	return {
 		totalAnswers: total,
@@ -162,11 +166,12 @@ function computeCorrectnessBatches(
 	batchSize: number,
 ): Batch[] {
 	const batches: Batch[] = [];
-	for (let i = 0; i < answers.length; i += batchSize) {
-		const slice = answers.slice(i, i + batchSize);
+	const completeBatches = Math.floor(answers.length / batchSize);
+	for (let i = 0; i < completeBatches; i++) {
+		const slice = answers.slice(i * batchSize, (i + 1) * batchSize);
 		const correct = slice.filter((a) => a.isCorrect).length;
 		batches.push({
-			label: String(batches.length + 1),
+			label: String(i + 1),
 			value: Math.round((correct / slice.length) * 1000) / 10,
 			count: slice.length,
 		});
@@ -179,16 +184,17 @@ function computeResponseTimeBatches(
 	batchSize: number,
 ): Batch[] {
 	const batches: Batch[] = [];
-	for (let i = 0; i < answers.length; i += batchSize) {
+	const completeBatches = Math.floor(answers.length / batchSize);
+	for (let i = 0; i < completeBatches; i++) {
 		const slice = answers
-			.slice(i, i + batchSize)
+			.slice(i * batchSize, (i + 1) * batchSize)
 			.filter((a) => a.duration !== null);
 		const avg =
 			slice.length > 0
 				? slice.reduce((s, a) => s + (a.duration ?? 0), 0) / slice.length
 				: 0;
 		batches.push({
-			label: String(batches.length + 1),
+			label: String(i + 1),
 			value: Math.round(avg),
 			count: slice.length,
 		});

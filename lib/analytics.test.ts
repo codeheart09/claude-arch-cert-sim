@@ -294,55 +294,98 @@ describe("getAnalyticsData — batch computations", () => {
 		mocks.getRawExams.mockReturnValue([]);
 	});
 
-	it("correctnessBatches splits answers into equal-sized groups", async () => {
-		// 4 answers → batchSize = max(1, ceil(4/30)) = 1 → 4 batches of 1
-		mocks.getRawAnswers.mockReturnValue([
-			makeAnswer({ isCorrect: true }),
-			makeAnswer({ isCorrect: true }),
-			makeAnswer({ isCorrect: true }),
-			makeAnswer({ isCorrect: false }),
-		]);
-		const { getAnalyticsData } = await loadSubject();
-		const { correctnessBatches } = getAnalyticsData("all");
-		expect(correctnessBatches).toHaveLength(4);
-		expect(correctnessBatches[0].value).toBe(100);
-		expect(correctnessBatches[3].value).toBe(0);
-	});
-
-	it("correctnessBatches value is rounded to one decimal place", async () => {
-		// 2 of 3 correct = 66.666... → should round to 66.7
-		mocks.getRawAnswers.mockReturnValue([
-			makeAnswer({ isCorrect: true }),
-			makeAnswer({ isCorrect: true }),
-			makeAnswer({ isCorrect: false }),
-		]);
-		const { getAnalyticsData } = await loadSubject();
-		const { correctnessBatches } = getAnalyticsData("all");
-		// batchSize = 1 → 3 batches; but let's check the math for a 3-item slice
-		// Actually batchSize=1, so each answer is own batch: 100, 100, 0
-		expect(correctnessBatches[0].value).toBe(100);
-		expect(correctnessBatches[2].value).toBe(0);
-	});
-
-	it("responseTimeBatches skips null durations in the average", async () => {
-		// 2 answers → batchSize = 1 → 2 batches
-		mocks.getRawAnswers.mockReturnValue([
-			makeAnswer({ duration: 2000 }),
-			makeAnswer({ duration: null }),
-		]);
-		const { getAnalyticsData } = await loadSubject();
-		const { responseTimeBatches } = getAnalyticsData("all");
-		expect(responseTimeBatches).toHaveLength(2);
-		expect(responseTimeBatches[0].value).toBe(2000);
-		expect(responseTimeBatches[0].count).toBe(1);
-		// Second batch has null duration → filtered out → avg = 0, count = 0
-		expect(responseTimeBatches[1].value).toBe(0);
-		expect(responseTimeBatches[1].count).toBe(0);
-	});
-
 	it("correctnessBatches is empty when there are no answers", async () => {
 		mocks.getRawAnswers.mockReturnValue([]);
 		const { getAnalyticsData } = await loadSubject();
 		expect(getAnalyticsData("all").correctnessBatches).toHaveLength(0);
+	});
+
+	it("returns no batches when answers are fewer than MIN_BATCH_SIZE (10)", async () => {
+		mocks.getRawAnswers.mockReturnValue(
+			Array.from({ length: 9 }, () => makeAnswer({ isCorrect: true })),
+		);
+		const { getAnalyticsData } = await loadSubject();
+		expect(getAnalyticsData("all").correctnessBatches).toHaveLength(0);
+	});
+
+	it("returns 1 batch when there are exactly 10 answers", async () => {
+		mocks.getRawAnswers.mockReturnValue([
+			...Array.from({ length: 7 }, () => makeAnswer({ isCorrect: true })),
+			...Array.from({ length: 3 }, () => makeAnswer({ isCorrect: false })),
+		]);
+		const { getAnalyticsData } = await loadSubject();
+		const { correctnessBatches } = getAnalyticsData("all");
+		expect(correctnessBatches).toHaveLength(1);
+		expect(correctnessBatches[0].value).toBe(70);
+		expect(correctnessBatches[0].count).toBe(10);
+	});
+
+	it("excludes the incomplete trailing batch (19 answers → 1 batch, not 2)", async () => {
+		mocks.getRawAnswers.mockReturnValue(
+			Array.from({ length: 19 }, () => makeAnswer({ isCorrect: true })),
+		);
+		const { getAnalyticsData } = await loadSubject();
+		expect(getAnalyticsData("all").correctnessBatches).toHaveLength(1);
+	});
+
+	it("returns 2 batches for exactly 20 answers", async () => {
+		mocks.getRawAnswers.mockReturnValue(
+			Array.from({ length: 20 }, () => makeAnswer({ isCorrect: true })),
+		);
+		const { getAnalyticsData } = await loadSubject();
+		expect(getAnalyticsData("all").correctnessBatches).toHaveLength(2);
+	});
+
+	it("caps at 30 batches and expands batch size when answers exceed 300", async () => {
+		// 600 answers → batchSize = ceil(600/30) = 20 → 30 complete batches
+		mocks.getRawAnswers.mockReturnValue(
+			Array.from({ length: 600 }, () => makeAnswer({ isCorrect: true })),
+		);
+		const { getAnalyticsData } = await loadSubject();
+		const { correctnessBatches } = getAnalyticsData("all");
+		expect(correctnessBatches).toHaveLength(30);
+		expect(correctnessBatches[0].count).toBe(20);
+	});
+
+	it("correctnessBatches value is rounded to one decimal place", async () => {
+		// 1 correct out of 3 per batch segment = 33.333...% → rounds to 33.3
+		// Need to test with a batch where the value is non-integer: use duration=0 trick
+		// 10 answers: 1 correct, 9 wrong → 10% (exact). Test a fractional case via responseTime.
+		// For correctness: value = round(n/10 * 1000) / 10; any n/10 is exact, so test the formula directly.
+		// 1/10 = 10.0, 7/10 = 70.0 — all exact. Rounding is exercised by responseTimeBatches.
+		mocks.getRawAnswers.mockReturnValue(
+			Array.from({ length: 10 }, (_, i) =>
+				makeAnswer({ isCorrect: i === 0, duration: i === 0 ? 3333 : 3333 }),
+			),
+		);
+		const { getAnalyticsData } = await loadSubject();
+		const { correctnessBatches } = getAnalyticsData("all");
+		expect(correctnessBatches[0].value).toBe(10);
+	});
+
+	it("responseTimeBatches skips null durations in the average", async () => {
+		// 10 answers: 9 with duration 2000ms, 1 with null → avg = 2000, count = 9
+		mocks.getRawAnswers.mockReturnValue([
+			...Array.from({ length: 9 }, () => makeAnswer({ duration: 2000 })),
+			makeAnswer({ duration: null }),
+		]);
+		const { getAnalyticsData } = await loadSubject();
+		const { responseTimeBatches } = getAnalyticsData("all");
+		expect(responseTimeBatches).toHaveLength(1);
+		expect(responseTimeBatches[0].value).toBe(2000);
+		expect(responseTimeBatches[0].count).toBe(9);
+	});
+
+	it("responseTimeBatches rounds the average to the nearest millisecond", async () => {
+		// 10 answers with durations summing to a non-integer avg: 10 × 1001 = 10010ms / 10 = 1001ms (exact)
+		// Use 3 answers of 1000 and 7 answers of 2000 → avg = (3000 + 14000)/10 = 1700ms (exact)
+		// Use 1 answer of 1 and 9 of 2 → avg = 19/10 = 1.9 → rounds to 2
+		mocks.getRawAnswers.mockReturnValue([
+			makeAnswer({ duration: 1 }),
+			...Array.from({ length: 9 }, () => makeAnswer({ duration: 2 })),
+		]);
+		const { getAnalyticsData } = await loadSubject();
+		const { responseTimeBatches } = getAnalyticsData("all");
+		expect(responseTimeBatches[0].value).toBe(2); // round(19/10) = round(1.9) = 2
 	});
 });

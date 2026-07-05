@@ -239,7 +239,7 @@ export function AnalyticsDashboard({ data, period }: Props) {
 					<div className={classes.chartCard}>
 						<div className={classes.chartTitle}>Accuracy Trend Over Time</div>
 						{isEmpty || correctnessChartData.length < 2 ? (
-							<EmptyChart message="Answer more questions to see your accuracy trend." />
+							<EmptyChart message="Answer at least 20 questions to see your accuracy trend." />
 						) : (
 							<AreaChart
 								data={correctnessChartData}
@@ -275,7 +275,7 @@ export function AnalyticsDashboard({ data, period }: Props) {
 							Answer Time Trend Over Time
 						</div>
 						{isEmpty || responseTimeChartData.length < 2 ? (
-							<EmptyChart message="Answer more questions to see your response time trend." />
+							<EmptyChart message="Answer at least 20 questions to see your response time trend." />
 						) : (
 							<LineChart
 								data={responseTimeChartData}
