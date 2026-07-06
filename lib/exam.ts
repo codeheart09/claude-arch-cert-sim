@@ -57,7 +57,13 @@ export interface ExamGradeResult {
 	questionResults: {
 		questionId: number;
 		isCorrect: boolean;
+		question: string;
+		selectedAlternative: Alternative;
+		correctAlternative: Alternative;
+		selectedText: string;
+		correctText: string;
 		insight: string;
+		correctInsight: string;
 	}[];
 }
 
@@ -215,13 +221,24 @@ export function finalizeExamSession(
 		if (answer.isCorrect) correctCount++;
 		totalDurationMs += answer.duration ?? 0;
 
+		const alternatives = JSON.parse(question.alternatives) as Partial<
+			Record<Alternative, string>
+		>;
 		const insights = JSON.parse(question.insights) as Partial<
 			Record<Alternative, string>
 		>;
+		const selected = answer.selectedAlternative as Alternative;
+		const correct = question.correctAlternative as Alternative;
 		questionResults.push({
 			questionId: question.id,
 			isCorrect: answer.isCorrect,
-			insight: insights[answer.selectedAlternative as Alternative] ?? "",
+			question: question.question,
+			selectedAlternative: selected,
+			correctAlternative: correct,
+			selectedText: alternatives[selected] ?? "",
+			correctText: alternatives[correct] ?? "",
+			insight: insights[selected] ?? "",
+			correctInsight: insights[correct] ?? "",
 		});
 
 		if (question.domain) {
