@@ -618,73 +618,6 @@ export function ExamSimulator({ initialQuestions }: ExamSimulatorProps) {
 							</Stack>
 						</Paper>
 					) : null}
-
-					{/* Incorrect answer review */}
-					{results.questionResults.some((r) => !r.isCorrect) ? (
-						<div className={classes.breakdownCard}>
-							<Stack gap="md">
-								<Title order={3} size="h5">
-									Review — Incorrect Answers
-								</Title>
-								<Accordion multiple chevronPosition="left" variant="separated">
-									{results.questionResults
-										.filter((r) => !r.isCorrect)
-										.map((r) => (
-											<Accordion.Item
-												key={r.questionId}
-												value={String(r.questionId)}
-											>
-												<Accordion.Control>
-													<Text size="sm" fw={500}>
-														{r.question}
-													</Text>
-												</Accordion.Control>
-												<Accordion.Panel>
-													<Stack gap="md">
-														<Stack gap={4}>
-															<Group gap="xs">
-																<IconX
-																	size={14}
-																	color="var(--mantine-color-red-filled)"
-																/>
-																<Text size="xs" fw={600} c="red">
-																	Your answer (
-																	{r.selectedAlternative.toUpperCase()}) —{" "}
-																	{r.selectedText}
-																</Text>
-															</Group>
-															{r.insight ? (
-																<Text size="sm" c="dimmed" pl="lg">
-																	{r.insight}
-																</Text>
-															) : null}
-														</Stack>
-														<Stack gap={4}>
-															<Group gap="xs">
-																<IconCheck
-																	size={14}
-																	color="var(--mantine-color-green-filled)"
-																/>
-																<Text size="xs" fw={600} c="green">
-																	Correct answer (
-																	{r.correctAlternative.toUpperCase()}) —{" "}
-																	{r.correctText}
-																</Text>
-															</Group>
-															{r.correctInsight ? (
-																<Text size="sm" c="dimmed" pl="lg">
-																	{r.correctInsight}
-																</Text>
-															) : null}
-														</Stack>
-													</Stack>
-												</Accordion.Panel>
-											</Accordion.Item>
-										))}
-								</Accordion>
-							</Stack>
-						</div>
-					) : null}
 				</Stack>
 			</Container>
 		</main>
@@ -876,6 +809,73 @@ function ResultsPage({ results, onRestart }: ResultsPageProps) {
 											);
 										})}
 								</Stack>
+							</Stack>
+						</div>
+					) : null}
+
+					{/* Incorrect answer review */}
+					{results.questionResults.some((r) => !r.isCorrect) ? (
+						<div className={classes.breakdownCard}>
+							<Stack gap="md">
+								<Title order={3} size="h5">
+									Review — Incorrect Answers
+								</Title>
+								<Accordion multiple chevronPosition="left" variant="separated">
+									{results.questionResults
+										.filter((r) => !r.isCorrect)
+										.map((r) => (
+											<Accordion.Item
+												key={r.questionId}
+												value={String(r.questionId)}
+											>
+												<Accordion.Control>
+													<Text size="sm" fw={500}>
+														{r.question}
+													</Text>
+												</Accordion.Control>
+												<Accordion.Panel>
+													<Stack gap="md">
+														<Stack gap={4}>
+															<Group gap="xs">
+																<IconX
+																	size={14}
+																	color="var(--mantine-color-red-filled)"
+																/>
+																<Text size="xs" fw={600} c="red">
+																	Your answer (
+																	{r.selectedAlternative.toUpperCase()}) —{" "}
+																	{r.selectedText}
+																</Text>
+															</Group>
+															{r.insight ? (
+																<Text size="sm" c="dimmed" pl="lg">
+																	{r.insight}
+																</Text>
+															) : null}
+														</Stack>
+														<Stack gap={4}>
+															<Group gap="xs">
+																<IconCheck
+																	size={14}
+																	color="var(--mantine-color-green-filled)"
+																/>
+																<Text size="xs" fw={600} c="green">
+																	Correct answer (
+																	{r.correctAlternative.toUpperCase()}) —{" "}
+																	{r.correctText}
+																</Text>
+															</Group>
+															{r.correctInsight ? (
+																<Text size="sm" c="dimmed" pl="lg">
+																	{r.correctInsight}
+																</Text>
+															) : null}
+														</Stack>
+													</Stack>
+												</Accordion.Panel>
+											</Accordion.Item>
+										))}
+								</Accordion>
 							</Stack>
 						</div>
 					) : null}
