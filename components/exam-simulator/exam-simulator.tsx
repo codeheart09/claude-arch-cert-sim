@@ -91,7 +91,7 @@ export function ExamSimulator({ initialQuestions }: ExamSimulatorProps) {
 			setMinutes(0);
 		} else {
 			setHours(0);
-			setMinutes(20);
+			setMinutes(35);
 		}
 		setSeconds(0);
 	}, [domain]);
