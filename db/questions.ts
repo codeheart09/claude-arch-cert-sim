@@ -82,6 +82,23 @@ export function getQuestionsByDomainScenario(
 }
 
 /**
+ * Returns up to `limit` random questions for a specific domain, across all
+ * scenarios. Used by domain-checkpoint mode to build a focused question set.
+ */
+export function getQuestionsByDomain(
+	domain: Domain,
+	limit: number,
+): Question[] {
+	return getDb()
+		.select()
+		.from(questions)
+		.where(and(eq(questions.domain, domain), eq(questions.deleted, false)))
+		.orderBy(sql`RANDOM()`)
+		.limit(limit)
+		.all();
+}
+
+/**
  * Returns up to `limit` random questions, optionally excluding a set of IDs.
  * Used to fill the exam pool when domain/scenario pairs fall short of 60.
  */

@@ -3,10 +3,12 @@
 import { refresh } from "next/cache";
 import { ALTERNATIVE_ENUM, type Alternative } from "@/db/schema";
 import {
+	type Domain,
 	type ExamGradeResult,
 	type ExamQuestion,
 	finalizeExamSession,
 	getExamQuestions,
+	getExamQuestionsByDomain,
 	recordExamAnswer,
 	startExamSession,
 } from "@/lib/exam";
@@ -69,9 +71,15 @@ export async function submitPracticeAnswer(
 	return gradeAndRecordAnswer(questionId, selected, durationMs);
 }
 
-/** Fetches a balanced 60-question set for an exam simulation. */
-export async function fetchExamQuestions(): Promise<ExamQuestion[]> {
-	return getExamQuestions();
+/**
+ * Fetches an exam question set.
+ * - No domain → balanced 60-question full exam.
+ * - With domain → up to 20 questions from that domain (checkpoint mode).
+ */
+export async function fetchExamQuestions(
+	domain?: Domain,
+): Promise<ExamQuestion[]> {
+	return domain ? getExamQuestionsByDomain(domain) : getExamQuestions();
 }
 
 /** Creates the exam_simulations row and returns its ID. Call when the exam starts. */
@@ -104,11 +112,20 @@ export async function resetUserDataAction(): Promise<void> {
 /**
  * Grades the exam from persisted answers, updates the simulation row, and
  * returns the full result. Call when the user finishes or time expires.
+ *
+ * Pass `totalQuestions` to scale the 1000-point score correctly for domain
+ * checkpoints (default 60 keeps the full-exam behaviour unchanged).
  */
 export async function finalizeExamSimulation(
 	examSimulationId: number,
 	totalExamTimeMs: number,
 	completed: boolean,
+	totalQuestions?: number,
 ): Promise<ExamGradeResult> {
-	return finalizeExamSession(examSimulationId, totalExamTimeMs, completed);
+	return finalizeExamSession(
+		examSimulationId,
+		totalExamTimeMs,
+		completed,
+		totalQuestions,
+	);
 }

@@ -10,6 +10,7 @@ import {
 	Paper,
 	Progress,
 	Radio,
+	Select,
 	SimpleGrid,
 	Stack,
 	Text,
@@ -26,6 +27,7 @@ import {
 } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import {
+	fetchExamQuestions,
 	finalizeExamSimulation,
 	recordSingleExamAnswer,
 	startExamSimulation,
@@ -37,7 +39,12 @@ import type {
 	ExamQuestion,
 	Scenario,
 } from "@/lib/exam";
-import { DOMAIN_HEADINGS, SCENARIO_TITLES } from "@/lib/exam-taxonomy";
+import {
+	DOMAIN_CHECKPOINT_COUNT,
+	DOMAIN_HEADINGS,
+	EXAM_QUESTION_COUNT,
+	SCENARIO_TITLES,
+} from "@/lib/exam-taxonomy";
 import classes from "./exam-simulator.module.css";
 
 interface ExamSimulatorProps {
@@ -75,9 +82,22 @@ export function ExamSimulator({ initialQuestions }: ExamSimulatorProps) {
 	const [minutes, setMinutes] = useState<number | string>(0);
 	const [seconds, setSeconds] = useState<number | string>(0);
 	const [setupError, setSetupError] = useState("");
+	const [domain, setDomain] = useState<Domain | "all">("all");
+
+	// Reset timer default when scope changes: 2h for full exam, 20m for a domain.
+	useEffect(() => {
+		if (domain === "all") {
+			setHours(2);
+			setMinutes(0);
+		} else {
+			setHours(0);
+			setMinutes(20);
+		}
+		setSeconds(0);
+	}, [domain]);
 
 	// Exam state
-	const [questions] = useState(initialQuestions);
+	const [questions, setQuestions] = useState(initialQuestions);
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [selected, setSelected] = useState("");
 	const [submittedAnswers, setSubmittedAnswers] = useState<
@@ -134,13 +154,19 @@ export function ExamSimulator({ initialQuestions }: ExamSimulatorProps) {
 			stopTimer();
 			const simId = examSimulationIdRef.current;
 			if (simId === null) return;
+			const questionCount = questions.length;
 			startFinalizing(async () => {
-				const result = await finalizeExamSimulation(simId, elapsed, completed);
+				const result = await finalizeExamSimulation(
+					simId,
+					elapsed,
+					completed,
+					questionCount,
+				);
 				setResults(result);
 				setPhase("results");
 			});
 		},
-		[stopTimer],
+		[stopTimer, questions.length],
 	);
 
 	// Drain any pending finalize once the in-flight answer recording settles.
@@ -177,6 +203,9 @@ export function ExamSimulator({ initialQuestions }: ExamSimulatorProps) {
 		setSetupError("");
 
 		startStartingExam(async () => {
+			const qs =
+				domain === "all" ? initialQuestions : await fetchExamQuestions(domain);
+			setQuestions(qs);
 			const simId = await startExamSimulation();
 			examSimulationIdRef.current = simId;
 			setLimitMs(totalMs);
@@ -258,6 +287,7 @@ export function ExamSimulator({ initialQuestions }: ExamSimulatorProps) {
 		stopTimer();
 		examSimulationIdRef.current = null;
 		setPhase("setup");
+		setDomain("all");
 		setSelected("");
 		setTimeExpired(false);
 		setResults(null);
@@ -268,6 +298,22 @@ export function ExamSimulator({ initialQuestions }: ExamSimulatorProps) {
 
 	// ─── Setup ────────────────────────────────────────────────────────────────
 
+	const DOMAIN_SELECT_DATA = [
+		{ value: "all", label: "Full exam (all domains)" },
+		...Object.entries(DOMAIN_HEADINGS).map(([slug, heading]) => ({
+			value: slug,
+			label: heading,
+		})),
+	];
+
+	const selectedDomainLabel =
+		domain === "all"
+			? "Full exam (all domains)"
+			: (DOMAIN_HEADINGS[domain as Domain] ?? domain);
+
+	const questionCount =
+		domain === "all" ? EXAM_QUESTION_COUNT : DOMAIN_CHECKPOINT_COUNT;
+
 	if (phase === "setup") {
 		return (
 			<main className={classes.pageSetup}>
@@ -276,9 +322,17 @@ export function ExamSimulator({ initialQuestions }: ExamSimulatorProps) {
 						<Stack gap={4}>
 							<Title order={2}>Exam Simulator</Title>
 							<Text size="sm" c="dimmed">
-								60 questions · full certification exam
+								{questionCount} questions · {selectedDomainLabel}
 							</Text>
 						</Stack>
+
+						<Select
+							label="Test scope"
+							data={DOMAIN_SELECT_DATA}
+							value={domain}
+							onChange={(v) => setDomain((v ?? "all") as Domain | "all")}
+							allowDeselect={false}
+						/>
 
 						<Stack gap="xs">
 							<Text size="sm" fw={500}>

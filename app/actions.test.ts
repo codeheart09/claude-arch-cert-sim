@@ -226,7 +226,12 @@ describe("finalizeExamSimulation", () => {
 		mocks.finalizeExamSession.mockReturnValue(gradeResult);
 		const { finalizeExamSimulation } = await loadSubject();
 		const result = await finalizeExamSimulation(1, 3_600_000, true);
-		expect(mocks.finalizeExamSession).toHaveBeenCalledWith(1, 3_600_000, true);
+		expect(mocks.finalizeExamSession).toHaveBeenCalledWith(
+			1,
+			3_600_000,
+			true,
+			undefined,
+		);
 		expect(result).toBe(gradeResult);
 	});
 });
