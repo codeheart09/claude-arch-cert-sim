@@ -815,62 +815,89 @@ function ResultsPage({ results, onRestart }: ResultsPageProps) {
 
 					{/* Incorrect answer review */}
 					{results.questionResults.some((r) => !r.isCorrect) ? (
-						<div className={classes.breakdownCard}>
+						<div className={classes.incorrectReviewCard}>
 							<Stack gap="md">
-								<Title order={3} size="h5">
-									Review — Incorrect Answers
-								</Title>
-								<Accordion multiple chevronPosition="left" variant="separated">
+								<Group gap="sm" align="center">
+									<IconX size={18} color="var(--mantine-color-red-6)" />
+									<Title order={3} size="h5" style={{ flex: 1 }}>
+										Incorrect Answers
+									</Title>
+									<Badge color="red" variant="light" radius="sm">
+										{results.questionResults.filter((r) => !r.isCorrect).length}{" "}
+										wrong
+									</Badge>
+								</Group>
+								<Accordion
+									multiple
+									chevronPosition="left"
+									variant="separated"
+									classNames={{ item: classes.reviewAccordionItem }}
+								>
 									{results.questionResults
 										.filter((r) => !r.isCorrect)
-										.map((r) => (
+										.map((r, idx) => (
 											<Accordion.Item
 												key={r.questionId}
 												value={String(r.questionId)}
 											>
 												<Accordion.Control>
-													<Text size="sm" fw={500}>
-														{r.question}
-													</Text>
+													<Group gap="sm" wrap="nowrap">
+														<Badge
+															size="xs"
+															color="red"
+															variant="filled"
+															circle
+															style={{ flexShrink: 0 }}
+														>
+															{idx + 1}
+														</Badge>
+														<Text size="sm" fw={500}>
+															{r.question}
+														</Text>
+													</Group>
 												</Accordion.Control>
 												<Accordion.Panel>
-													<Stack gap="md">
-														<Stack gap={4}>
-															<Group gap="xs">
+													<Stack gap="sm" pt={4}>
+														<div
+															className={`${classes.answerBlock} ${classes.answerBlockWrong}`}
+														>
+															<Group gap={6} mb={6}>
 																<IconX
-																	size={14}
-																	color="var(--mantine-color-red-filled)"
+																	size={13}
+																	color="var(--mantine-color-red-6)"
 																/>
-																<Text size="xs" fw={600} c="red">
-																	Your answer (
-																	{r.selectedAlternative.toUpperCase()}) —{" "}
-																	{r.selectedText}
-																</Text>
+																<span className={classes.answerBlockLabel}>
+																	Your answer —{" "}
+																	{r.selectedAlternative.toUpperCase()}
+																</span>
 															</Group>
+															<Text size="sm">{r.selectedText}</Text>
 															{r.insight ? (
-																<Text size="sm" c="dimmed" pl="lg">
+																<p className={classes.answerInsight}>
 																	{r.insight}
-																</Text>
+																</p>
 															) : null}
-														</Stack>
-														<Stack gap={4}>
-															<Group gap="xs">
+														</div>
+														<div
+															className={`${classes.answerBlock} ${classes.answerBlockCorrect}`}
+														>
+															<Group gap={6} mb={6}>
 																<IconCheck
-																	size={14}
-																	color="var(--mantine-color-green-filled)"
+																	size={13}
+																	color="var(--mantine-color-green-6)"
 																/>
-																<Text size="xs" fw={600} c="green">
-																	Correct answer (
-																	{r.correctAlternative.toUpperCase()}) —{" "}
-																	{r.correctText}
-																</Text>
+																<span className={classes.answerBlockLabel}>
+																	Correct answer —{" "}
+																	{r.correctAlternative.toUpperCase()}
+																</span>
 															</Group>
+															<Text size="sm">{r.correctText}</Text>
 															{r.correctInsight ? (
-																<Text size="sm" c="dimmed" pl="lg">
+																<p className={classes.answerInsight}>
 																	{r.correctInsight}
-																</Text>
+																</p>
 															) : null}
-														</Stack>
+														</div>
 													</Stack>
 												</Accordion.Panel>
 											</Accordion.Item>

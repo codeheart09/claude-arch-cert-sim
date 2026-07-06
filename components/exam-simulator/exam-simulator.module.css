@@ -313,6 +313,85 @@
 	white-space: nowrap;
 }
 
+/* ─── Incorrect answer review ─────────────────────────────────────────────── */
+
+.incorrectReviewCard {
+	padding: var(--mantine-spacing-lg);
+	border: 1px solid var(--mantine-color-red-3);
+	background: light-dark(
+		var(--mantine-color-red-0),
+		color-mix(
+			in srgb,
+			var(--mantine-color-red-9) 12%,
+			var(--mantine-color-dark-7)
+		)
+	);
+	box-shadow: var(--mantine-shadow-xs);
+	border-radius: var(--mantine-radius-md);
+}
+
+.reviewAccordionItem {
+	background: light-dark(
+		var(--mantine-color-white),
+		var(--mantine-color-dark-6)
+	) !important;
+	border: 1px solid var(--mantine-color-red-2) !important;
+}
+
+.answerBlock {
+	padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+	border-radius: var(--mantine-radius-sm);
+}
+
+.answerBlockWrong {
+	background: light-dark(
+		var(--mantine-color-red-0),
+		color-mix(in srgb, var(--mantine-color-red-9) 18%, transparent)
+	);
+	border-left: 3px solid var(--mantine-color-red-5);
+}
+
+.answerBlockCorrect {
+	background: light-dark(
+		var(--mantine-color-green-0),
+		color-mix(in srgb, var(--mantine-color-green-9) 18%, transparent)
+	);
+	border-left: 3px solid var(--mantine-color-green-5);
+}
+
+.answerBlockLabel {
+	font-size: var(--mantine-font-size-xs);
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.answerBlockWrong .answerBlockLabel {
+	color: var(--mantine-color-red-7);
+}
+
+.answerBlockCorrect .answerBlockLabel {
+	color: var(--mantine-color-green-7);
+}
+
+[data-mantine-color-scheme="dark"] .answerBlockWrong .answerBlockLabel {
+	color: var(--mantine-color-red-4);
+}
+
+[data-mantine-color-scheme="dark"] .answerBlockCorrect .answerBlockLabel {
+	color: var(--mantine-color-green-4);
+}
+
+.answerInsight {
+	margin-top: var(--mantine-spacing-xs);
+	padding-top: var(--mantine-spacing-xs);
+	border-top: 1px solid
+		light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-4));
+	font-size: var(--mantine-font-size-sm);
+	color: var(--mantine-color-dimmed);
+	font-style: italic;
+}
+
 /* ─── Responsive ──────────────────────────────────────────────────────────── */
 
 @media (max-width: 48em) {
