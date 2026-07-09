@@ -84,15 +84,19 @@ export function ExamSimulator({ initialQuestions }: ExamSimulatorProps) {
 	const [seconds, setSeconds] = useState<number | string>(0);
 	const [setupError, setSetupError] = useState("");
 	const [domain, setDomain] = useState<Domain | "all">("all");
+	const [checkpointCount, setCheckpointCount] = useState<number | string>(
+		DOMAIN_CHECKPOINT_COUNT,
+	);
 
-	// Reset timer default when scope changes: 2h for full exam, 20m for a domain.
+	// Reset timer and question count defaults when scope changes.
 	useEffect(() => {
 		if (domain === "all") {
 			setHours(2);
 			setMinutes(0);
 		} else {
 			setHours(0);
-			setMinutes(35);
+			setMinutes(20);
+			setCheckpointCount(DOMAIN_CHECKPOINT_COUNT);
 		}
 		setSeconds(0);
 	}, [domain]);
@@ -204,8 +208,14 @@ export function ExamSimulator({ initialQuestions }: ExamSimulatorProps) {
 		setSetupError("");
 
 		startStartingExam(async () => {
+			const count =
+				typeof checkpointCount === "number"
+					? checkpointCount
+					: DOMAIN_CHECKPOINT_COUNT;
 			const qs =
-				domain === "all" ? initialQuestions : await fetchExamQuestions(domain);
+				domain === "all"
+					? initialQuestions
+					: await fetchExamQuestions(domain, count);
 			setQuestions(qs);
 			const simId = await startExamSimulation();
 			examSimulationIdRef.current = simId;
@@ -318,7 +328,11 @@ export function ExamSimulator({ initialQuestions }: ExamSimulatorProps) {
 			: (DOMAIN_HEADINGS[domain as Domain] ?? domain);
 
 	const questionCount =
-		domain === "all" ? EXAM_QUESTION_COUNT : DOMAIN_CHECKPOINT_COUNT;
+		domain === "all"
+			? EXAM_QUESTION_COUNT
+			: typeof checkpointCount === "number"
+				? checkpointCount
+				: DOMAIN_CHECKPOINT_COUNT;
 
 	if (phase === "setup") {
 		return (
@@ -339,6 +353,17 @@ export function ExamSimulator({ initialQuestions }: ExamSimulatorProps) {
 							onChange={(v) => setDomain((v ?? "all") as Domain | "all")}
 							allowDeselect={false}
 						/>
+
+						{domain !== "all" && (
+							<NumberInput
+								label="Number of questions"
+								value={checkpointCount}
+								onChange={setCheckpointCount}
+								min={1}
+								max={20}
+								clampBehavior="strict"
+							/>
+						)}
 
 						<Stack gap="xs">
 							<Text size="sm" fw={500}>

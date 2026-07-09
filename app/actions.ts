@@ -74,12 +74,13 @@ export async function submitPracticeAnswer(
 /**
  * Fetches an exam question set.
  * - No domain → balanced 60-question full exam.
- * - With domain → up to 20 questions from that domain (checkpoint mode).
+ * - With domain → up to `count` questions from that domain (checkpoint mode).
  */
 export async function fetchExamQuestions(
 	domain?: Domain,
+	count?: number,
 ): Promise<ExamQuestion[]> {
-	return domain ? getExamQuestionsByDomain(domain) : getExamQuestions();
+	return domain ? getExamQuestionsByDomain(domain, count) : getExamQuestions();
 }
 
 /** Creates the exam_simulations row and returns its ID. Call when the exam starts. */

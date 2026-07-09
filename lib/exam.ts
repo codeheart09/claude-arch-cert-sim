@@ -119,12 +119,14 @@ export function getExamQuestions(): ExamQuestion[] {
 }
 
 /**
- * Builds a domain-scoped checkpoint set (up to DOMAIN_CHECKPOINT_COUNT questions)
- * from a single domain, across all scenarios. Used when the user picks a specific
- * domain on the exam setup screen.
+ * Builds a domain-scoped checkpoint set from a single domain, across all scenarios.
+ * Used when the user picks a specific domain on the exam setup screen.
  */
-export function getExamQuestionsByDomain(domain: Domain): ExamQuestion[] {
-	const rows = getQuestionsByDomain(domain, DOMAIN_CHECKPOINT_COUNT);
+export function getExamQuestionsByDomain(
+	domain: Domain,
+	count: number = DOMAIN_CHECKPOINT_COUNT,
+): ExamQuestion[] {
+	const rows = getQuestionsByDomain(domain, count);
 	return rows.map(toExamQuestion);
 }
 
