@@ -242,6 +242,11 @@ export function ExamSimulator({ initialQuestions }: ExamSimulatorProps) {
 				await recordSingleExamAnswer(simId, q.id, selectedLetter, durationMs);
 			});
 		}
+
+		// Auto-advance to the next question immediately after submitting.
+		if (currentIndex < questions.length - 1) {
+			handleNext();
+		}
 	}
 
 	function handleNext() {
@@ -575,13 +580,6 @@ export function ExamSimulator({ initialQuestions }: ExamSimulatorProps) {
 										})}
 									</Stack>
 								</Radio.Group>
-
-								{isCurrentSubmitted ? (
-									<Alert color="umber" variant="light" title="Answer recorded">
-										Your answer has been saved. Results will be shown after the
-										exam.
-									</Alert>
-								) : null}
 
 								<Group justify="space-between">
 									<Button
