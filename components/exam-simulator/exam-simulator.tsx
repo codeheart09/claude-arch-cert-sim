@@ -1,6 +1,7 @@
 "use client";
 
 import {
+	Accordion,
 	Alert,
 	Badge,
 	Button,
@@ -10,6 +11,7 @@ import {
 	Paper,
 	Progress,
 	Radio,
+	Select,
 	SimpleGrid,
 	Stack,
 	Text,
@@ -26,6 +28,7 @@ import {
 } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import {
+	fetchExamQuestions,
 	finalizeExamSimulation,
 	recordSingleExamAnswer,
 	startExamSimulation,
@@ -37,7 +40,12 @@ import type {
 	ExamQuestion,
 	Scenario,
 } from "@/lib/exam";
-import { DOMAIN_HEADINGS, SCENARIO_TITLES } from "@/lib/exam-taxonomy";
+import {
+	DOMAIN_CHECKPOINT_COUNT,
+	DOMAIN_HEADINGS,
+	EXAM_QUESTION_COUNT,
+	SCENARIO_TITLES,
+} from "@/lib/exam-taxonomy";
 import classes from "./exam-simulator.module.css";
 
 interface ExamSimulatorProps {
@@ -75,9 +83,26 @@ export function ExamSimulator({ initialQuestions }: ExamSimulatorProps) {
 	const [minutes, setMinutes] = useState<number | string>(0);
 	const [seconds, setSeconds] = useState<number | string>(0);
 	const [setupError, setSetupError] = useState("");
+	const [domain, setDomain] = useState<Domain | "all">("all");
+	const [checkpointCount, setCheckpointCount] = useState<number | string>(
+		DOMAIN_CHECKPOINT_COUNT,
+	);
+
+	// Reset timer and question count defaults when scope changes.
+	useEffect(() => {
+		if (domain === "all") {
+			setHours(2);
+			setMinutes(0);
+		} else {
+			setHours(0);
+			setMinutes(20);
+			setCheckpointCount(DOMAIN_CHECKPOINT_COUNT);
+		}
+		setSeconds(0);
+	}, [domain]);
 
 	// Exam state
-	const [questions] = useState(initialQuestions);
+	const [questions, setQuestions] = useState(initialQuestions);
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [selected, setSelected] = useState("");
 	const [submittedAnswers, setSubmittedAnswers] = useState<
@@ -134,13 +159,19 @@ export function ExamSimulator({ initialQuestions }: ExamSimulatorProps) {
 			stopTimer();
 			const simId = examSimulationIdRef.current;
 			if (simId === null) return;
+			const questionCount = questions.length;
 			startFinalizing(async () => {
-				const result = await finalizeExamSimulation(simId, elapsed, completed);
+				const result = await finalizeExamSimulation(
+					simId,
+					elapsed,
+					completed,
+					questionCount,
+				);
 				setResults(result);
 				setPhase("results");
 			});
 		},
-		[stopTimer],
+		[stopTimer, questions.length],
 	);
 
 	// Drain any pending finalize once the in-flight answer recording settles.
@@ -177,6 +208,15 @@ export function ExamSimulator({ initialQuestions }: ExamSimulatorProps) {
 		setSetupError("");
 
 		startStartingExam(async () => {
+			const count =
+				typeof checkpointCount === "number"
+					? checkpointCount
+					: DOMAIN_CHECKPOINT_COUNT;
+			const qs =
+				domain === "all"
+					? initialQuestions
+					: await fetchExamQuestions(domain, count);
+			setQuestions(qs);
 			const simId = await startExamSimulation();
 			examSimulationIdRef.current = simId;
 			setLimitMs(totalMs);
@@ -211,6 +251,11 @@ export function ExamSimulator({ initialQuestions }: ExamSimulatorProps) {
 			startRecordingAnswer(async () => {
 				await recordSingleExamAnswer(simId, q.id, selectedLetter, durationMs);
 			});
+		}
+
+		// Auto-advance to the next question immediately after submitting.
+		if (currentIndex < questions.length - 1) {
+			handleNext();
 		}
 	}
 
@@ -258,6 +303,7 @@ export function ExamSimulator({ initialQuestions }: ExamSimulatorProps) {
 		stopTimer();
 		examSimulationIdRef.current = null;
 		setPhase("setup");
+		setDomain("all");
 		setSelected("");
 		setTimeExpired(false);
 		setResults(null);
@@ -268,6 +314,26 @@ export function ExamSimulator({ initialQuestions }: ExamSimulatorProps) {
 
 	// ─── Setup ────────────────────────────────────────────────────────────────
 
+	const DOMAIN_SELECT_DATA = [
+		{ value: "all", label: "Full exam (all domains)" },
+		...Object.entries(DOMAIN_HEADINGS).map(([slug, heading]) => ({
+			value: slug,
+			label: heading,
+		})),
+	];
+
+	const selectedDomainLabel =
+		domain === "all"
+			? "Full exam (all domains)"
+			: (DOMAIN_HEADINGS[domain as Domain] ?? domain);
+
+	const questionCount =
+		domain === "all"
+			? EXAM_QUESTION_COUNT
+			: typeof checkpointCount === "number"
+				? checkpointCount
+				: DOMAIN_CHECKPOINT_COUNT;
+
 	if (phase === "setup") {
 		return (
 			<main className={classes.pageSetup}>
@@ -276,9 +342,28 @@ export function ExamSimulator({ initialQuestions }: ExamSimulatorProps) {
 						<Stack gap={4}>
 							<Title order={2}>Exam Simulator</Title>
 							<Text size="sm" c="dimmed">
-								60 questions · full certification exam
+								{questionCount} questions · {selectedDomainLabel}
 							</Text>
 						</Stack>
+
+						<Select
+							label="Test scope"
+							data={DOMAIN_SELECT_DATA}
+							value={domain}
+							onChange={(v) => setDomain((v ?? "all") as Domain | "all")}
+							allowDeselect={false}
+						/>
+
+						{domain !== "all" && (
+							<NumberInput
+								label="Number of questions"
+								value={checkpointCount}
+								onChange={setCheckpointCount}
+								min={1}
+								max={20}
+								clampBehavior="strict"
+							/>
+						)}
 
 						<Stack gap="xs">
 							<Text size="sm" fw={500}>
@@ -521,13 +606,6 @@ export function ExamSimulator({ initialQuestions }: ExamSimulatorProps) {
 									</Stack>
 								</Radio.Group>
 
-								{isCurrentSubmitted ? (
-									<Alert color="umber" variant="light" title="Answer recorded">
-										Your answer has been saved. Results will be shown after the
-										exam.
-									</Alert>
-								) : null}
-
 								<Group justify="space-between">
 									<Button
 										onClick={handleSubmitQuestion}
@@ -754,6 +832,100 @@ function ResultsPage({ results, onRestart }: ResultsPageProps) {
 											);
 										})}
 								</Stack>
+							</Stack>
+						</div>
+					) : null}
+
+					{/* Incorrect answer review */}
+					{results.questionResults.some((r) => !r.isCorrect) ? (
+						<div className={classes.incorrectReviewCard}>
+							<Stack gap="md">
+								<Group gap="sm" align="center">
+									<IconX size={18} color="var(--mantine-color-red-6)" />
+									<Title order={3} size="h5" style={{ flex: 1 }}>
+										Incorrect Answers
+									</Title>
+									<Badge color="red" variant="light" radius="sm">
+										{results.questionResults.filter((r) => !r.isCorrect).length}{" "}
+										wrong
+									</Badge>
+								</Group>
+								<Accordion
+									multiple
+									chevronPosition="left"
+									variant="separated"
+									classNames={{ item: classes.reviewAccordionItem }}
+								>
+									{results.questionResults
+										.filter((r) => !r.isCorrect)
+										.map((r, idx) => (
+											<Accordion.Item
+												key={r.questionId}
+												value={String(r.questionId)}
+											>
+												<Accordion.Control>
+													<Group gap="sm" wrap="nowrap">
+														<Badge
+															size="xs"
+															color="red"
+															variant="filled"
+															circle
+															style={{ flexShrink: 0 }}
+														>
+															{idx + 1}
+														</Badge>
+														<Text size="sm" fw={500}>
+															{r.question}
+														</Text>
+													</Group>
+												</Accordion.Control>
+												<Accordion.Panel>
+													<Stack gap="sm" pt={4}>
+														<div
+															className={`${classes.answerBlock} ${classes.answerBlockWrong}`}
+														>
+															<Group gap={6} mb={6}>
+																<IconX
+																	size={13}
+																	color="var(--mantine-color-red-6)"
+																/>
+																<span className={classes.answerBlockLabel}>
+																	Your answer —{" "}
+																	{r.selectedAlternative.toUpperCase()}
+																</span>
+															</Group>
+															<Text size="sm">{r.selectedText}</Text>
+															{r.insight ? (
+																<p className={classes.answerInsight}>
+																	{r.insight}
+																</p>
+															) : null}
+														</div>
+														<div
+															className={`${classes.answerBlock} ${classes.answerBlockCorrect}`}
+														>
+															<Group gap={6} mb={6}>
+																<IconCheck
+																	size={13}
+																	color="var(--mantine-color-green-6)"
+																/>
+																<span className={classes.answerBlockLabel}>
+																	Correct answer —{" "}
+																	{r.correctAlternative.toUpperCase()}
+																</span>
+															</Group>
+															<Text size="sm">{r.correctText}</Text>
+															{r.correctInsight ? (
+																<p className={classes.answerInsight}>
+																	{r.correctInsight}
+																</p>
+															) : null}
+														</div>
+													</Stack>
+												</Accordion.Panel>
+											</Accordion.Item>
+										))}
+								</Accordion>
 							</Stack>
 						</div>
 					) : null}

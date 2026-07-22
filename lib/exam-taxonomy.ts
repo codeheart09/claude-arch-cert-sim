@@ -18,6 +18,12 @@ import {
 	type Scenario,
 } from "../db/schema";
 
+/** Total questions in a full certification exam. */
+export const EXAM_QUESTION_COUNT = 60;
+
+/** Default questions in a single-domain checkpoint session. */
+export const DOMAIN_CHECKPOINT_COUNT = 10;
+
 /** Slug → the exact "Domain N: …" heading used in the exam guide / KB `domain` column. */
 export const DOMAIN_HEADINGS: Record<Domain, string> = {
 	"agentic-architecture": "Domain 1: Agentic Architecture & Orchestration",

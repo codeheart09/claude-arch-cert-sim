@@ -5,16 +5,22 @@ import {
 } from "../db/exam-simulations";
 import {
 	getQuestionById,
+	getQuestionsByDomain,
 	getQuestionsByDomainScenario,
 	getRandomQuestions,
 } from "../db/questions";
 import type { Alternative, Difficulty, Domain, Scenario } from "../db/schema";
-import { SCENARIO_PRIMARY_DOMAINS } from "./exam-taxonomy";
+import {
+	DOMAIN_CHECKPOINT_COUNT,
+	EXAM_QUESTION_COUNT,
+	SCENARIO_PRIMARY_DOMAINS,
+} from "./exam-taxonomy";
 import type { PracticeChoice } from "./practice";
 
 export type { Alternative, Domain, Scenario };
 
-export const EXAM_QUESTION_COUNT = 60;
+export { DOMAIN_CHECKPOINT_COUNT, EXAM_QUESTION_COUNT };
+
 const TARGET_PER_PAIR = 4;
 
 export interface ExamQuestion {
@@ -51,7 +57,13 @@ export interface ExamGradeResult {
 	questionResults: {
 		questionId: number;
 		isCorrect: boolean;
+		question: string;
+		selectedAlternative: Alternative;
+		correctAlternative: Alternative;
+		selectedText: string;
+		correctText: string;
 		insight: string;
+		correctInsight: string;
 	}[];
 }
 
@@ -104,6 +116,18 @@ export function getExamQuestions(): ExamQuestion[] {
 	}
 
 	return shuffle(pool).slice(0, EXAM_QUESTION_COUNT);
+}
+
+/**
+ * Builds a domain-scoped checkpoint set from a single domain, across all scenarios.
+ * Used when the user picks a specific domain on the exam setup screen.
+ */
+export function getExamQuestionsByDomain(
+	domain: Domain,
+	count: number = DOMAIN_CHECKPOINT_COUNT,
+): ExamQuestion[] {
+	const rows = getQuestionsByDomain(domain, count);
+	return rows.map(toExamQuestion);
 }
 
 function toExamQuestion(row: {
@@ -181,6 +205,7 @@ export function finalizeExamSession(
 	examSimulationId: number,
 	totalExamTimeMs: number,
 	completed: boolean,
+	totalQuestions: number = EXAM_QUESTION_COUNT,
 ): ExamGradeResult {
 	const savedAnswers = getAnswersByExamSimulationId(examSimulationId);
 
@@ -198,13 +223,24 @@ export function finalizeExamSession(
 		if (answer.isCorrect) correctCount++;
 		totalDurationMs += answer.duration ?? 0;
 
+		const alternatives = JSON.parse(question.alternatives) as Partial<
+			Record<Alternative, string>
+		>;
 		const insights = JSON.parse(question.insights) as Partial<
 			Record<Alternative, string>
 		>;
+		const selected = answer.selectedAlternative as Alternative;
+		const correct = question.correctAlternative as Alternative;
 		questionResults.push({
 			questionId: question.id,
 			isCorrect: answer.isCorrect,
-			insight: insights[answer.selectedAlternative as Alternative] ?? "",
+			question: question.question,
+			selectedAlternative: selected,
+			correctAlternative: correct,
+			selectedText: alternatives[selected] ?? "",
+			correctText: alternatives[correct] ?? "",
+			insight: insights[selected] ?? "",
+			correctInsight: insights[correct] ?? "",
 		});
 
 		if (question.domain) {
@@ -226,7 +262,7 @@ export function finalizeExamSession(
 	}
 
 	const answeredCount = savedAnswers.length;
-	const score = Math.round(correctCount * (1000 / EXAM_QUESTION_COUNT));
+	const score = Math.round(correctCount * (1000 / totalQuestions));
 	const percentage =
 		answeredCount > 0
 			? Math.round((correctCount / answeredCount) * 1000) / 10
